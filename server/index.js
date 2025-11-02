@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const rateLimit = require('express-rate-limit');
 const pool = require('./db');
 const app = express();
 const port = process.env.PORT || 4000;
@@ -242,6 +243,29 @@ try {
 
 app.use(cors());
 app.use(express.json());
+
+// Rate limiting for API endpoints (prevent abuse)
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
+  // Skip rate limiting for health checks
+  skip: (req) => req.path === '/health'
+});
+
+// More strict rate limiting for login endpoint
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // Limit each IP to 10 login attempts per windowMs
+  message: 'Too many login attempts, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+// Apply rate limiters
+app.use('/api/', apiLimiter);
 
 // in-memory fallback store used when MySQL is unavailable
 let usingFallback = false;
@@ -688,8 +712,8 @@ app.put('/api/alumni/:id/full', upload.single('imageFile'), async (req, res) => 
   }
 });
 
-// Login endpoint
-app.post('/api/login', async (req, res) => {
+// Login endpoint (with stricter rate limiting)
+app.post('/api/login', loginLimiter, async (req, res) => {
   try {
     const { userId, password, role } = req.body || {};
     if (!userId || !password) return res.status(400).json({ error: 'Missing credentials' });

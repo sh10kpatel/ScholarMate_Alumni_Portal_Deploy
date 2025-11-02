@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+server/node_modules/
+
+# Environment variables
+.env
+.env.local
+server/.env
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+npm-debug.log*
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Uploads (contains user-uploaded files - uncomment if you don't want to commit)
+# uploads/
+# server/uploads/
+
+# Docker volumes
+data/
+mysql-data/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Build files
+dist/
+build/

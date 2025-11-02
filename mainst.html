@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Alumni Portal</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial; }
+    html, body { height: 100%; }
+    body { 
+      background: #1A202C;
+      color: #FFFFFF;
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.5;
+    }
+    .bg-accent { 
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+      opacity: 0.5;
+    }
+    .bg-accent .blob { position: absolute; border-radius:50%; filter: blur(80px); opacity:0.16; transform: translateZ(0); }
+    .bg-accent .b1{ width:520px;height:520px; background:radial-gradient(circle at 30% 30%, rgba(124,58,237,0.95), rgba(124,58,237,0.25) 40%, transparent 60%); left:-120px; top:-80px; animation:float1 12s ease-in-out infinite; }
+    .bg-accent .b2{ width:420px;height:420px; background:radial-gradient(circle at 70% 70%, rgba(6,182,212,0.92), rgba(20,184,166,0.20) 40%, transparent 60%); right:-100px; bottom:-110px; animation:float2 14s ease-in-out infinite; opacity:0.12; }
+    @keyframes float1{0%{transform:translateY(0)}50%{transform:translateY(18px) translateX(16px)}100%{transform:translateY(0)}}
+    @keyframes float2{0%{transform:translateY(0)}50%{transform:translateY(-14px) translateX(-18px)}100%{transform:translateY(0)}}
+    header { position: sticky; top:0; z-index:12; background: linear-gradient(180deg, rgba(4,6,15,0.6), rgba(6,8,20,0.3)); backdrop-filter: blur(8px); border-bottom:1px solid rgba(148,163,184,0.06); }
+    .container { max-width:1200px; margin:0 auto; padding:20px; position:relative; z-index:1; }
+    .brand { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .brand h1 { font-size:1.9rem; letter-spacing:.6px; margin-right:18px; cursor: pointer; }
+    .nav a { color:#dbeafe; text-decoration:none; margin-left:18px; font-weight:700; }
+    .hero { padding:8px 20px 4px; text-align:center; animation:fadeIn .7s ease-in-out; }
+    .hero-title { font-size:1.9rem; color:#fff; font-weight:800; margin-bottom:4px; }
+    .controls { padding:6px 12px 12px; animation:slideDown .6s ease-in-out; }
+    .controls-inner { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; align-items:center; }
+    .input, .select { 
+      background: #2D3748;
+      border: none;
+      color: #FFFFFF;
+      padding: 0 16px;
+      border-radius: 8px;
+      min-width: 260px;
+      height: 40px;
+      transition: all 0.2s ease;
+    }
+    .input::placeholder { color: #A0AEC0; }
+    .input:focus, .select:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.5);
+    }
+    option, select option { color: #000 !important; background: #2D3748; }
+    .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; padding:20px; }
+    @media (max-width:1100px){ .grid{ grid-template-columns:repeat(2,1fr); } }
+    @media (max-width:640px){ .grid{ grid-template-columns:1fr; } }
+    .card { 
+      background: #2D3748;
+      color: #FFFFFF;
+      border-radius: 12px;
+      overflow: hidden;
+      height: 380px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeUp 0.8s forwards;
+      cursor: pointer;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      position: relative;
+    }
+    .card:hover {
+      transform: scale(1.02);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+    }
+    .card img { 
+      display: block;
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      transition: transform 0.6s ease;
+      border-radius: 12px 12px 0 0;
+    }
+    .card:hover img { transform: scale(1.05); }
+    .card-body { padding: 12px 20px 15px 20px; }
+    .badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: absolute;
+      top: 152px;
+      right: 20px;
+      font-size: 12px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      background: #3182CE;
+      color: #FFFFFF;
+      font-weight: 700;
+      z-index: 1;
+      width: 60px;
+      height: 28px;
+    }
+    .card:hover .badge { background: #4299E1; }
+    .title { font-size: 22px; margin-bottom: 5px; color: #FFFFFF; font-weight: 700; line-height: 1.2; }
+    .desc { font-size: 16px; color: #A0AEC0; margin-bottom: 10px; line-height: 1.5; }
+    .meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; color: #A0AEC0; font-size: 14px; }
+    .meta span:not(:last-child)::after { content: "•"; margin: 0 8px; color: #4A5568; }
+    .btn { 
+      display:inline-flex; 
+      align-items: center;
+      justify-content: center;
+      background:linear-gradient(to right, #667EEA, #9F7AEA); 
+      color:#fff; 
+      text-decoration:none; 
+      font-weight:600; 
+      padding:12px 20px; 
+      border-radius:8px; 
+      border:none; 
+      cursor:pointer; 
+      width: 140px;
+      height: 45px;
+      font-size: 16px;
+      transition: all 0.2s ease;
+    }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); }
+    .dropdown-item {
+      display: block;
+      padding: 10px 16px;
+      color: #dbeafe;
+      text-decoration: none;
+      border-radius: 4px;
+      white-space: nowrap;
+      font-weight: 500;
+      transition: background 0.2s ease;
+    }
+    .dropdown-item:hover { background: rgba(124, 58, 237, 0.2); }
+    footer { border-top:1px solid rgba(148,163,184,0.06); padding:28px; text-align:center; color:#93a6bd; }
+    @keyframes fadeIn{ from{ opacity:0; transform:translateY(-8px);} to{ opacity:1; transform:translateY(0); } }
+    @keyframes fadeUp{ from{ opacity:0; transform:translateY(20px);} to{ opacity:1; transform:translateY(0);} }
+    @keyframes slideDown{ from{ opacity:0; transform:translateY(-18px);} to{ opacity:1; transform:translateY(0);} }
+    .modal-overlay { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(2,6,23,0.5); z-index:200; }
+    .modal { background:#fff; border-radius:10px; max-width:720px; width:94%; color:#06201f; }
+  </style>
+</head>
+<body>
+  <div class="bg-accent" aria-hidden="true"><div class="blob b1"></div><div class="blob b2"></div></div>
+
+  <header>
+    <div class="container brand">
+      <div style="display:flex;align-items:center;gap:12px">
+        <h1 id="brandTitle">Alumni Portal</h1>
+      </div>
+      <div style="display:flex;align-items:center;gap:20px">
+        <nav class="nav">
+          <a href="#about">About</a>
+          <a href="#contact">Contact</a>
+        </nav>
+        <div class="user-profile" style="position:relative">
+          <button id="headerAccountBtn" class="btn" style="background:none;padding:8px;width:auto;height:auto;border:none;cursor:pointer">
+            <i class="fas fa-user-circle" style="font-size:24px;color:#dbeafe"></i>
+          </button>
+          <div id="accountDropdown" style="display:none;position:absolute;right:0;top:calc(100% + 8px);background:#2d3748;border-radius:8px;padding:8px;min-width:160px;box-shadow:0 4px 12px rgba(0,0,0,0.3);z-index:100">
+            <a href="#" id="myProfileBtn" class="dropdown-item">My Profile</a>
+            <a href="#" id="headerLogout" class="dropdown-item">Logout</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="container">
+      <div class="hero-title">IIIT NR Alumni Portal — Connect, Discover, Grow</div>
+      <div class="hero-sub">Browse alumni, find opportunities, and keep the community alive. Use the filters to quickly narrow results.</div>
+    </div>
+  </section>
+
+  <section class="controls" id="alumni">
+    <div class="container">
+      <div class="controls-inner">
+        <input id="search" class="input" type="search" placeholder="Search alumni by name or keywords...">
+        <select id="branch" class="select">
+          <option value="all">All Branches</option>
+          <option value="cse">CSE</option>
+          <option value="ece">ECE</option>
+          <option value="dsai">DSAI</option>
+        </select>
+        <select id="batch" class="select">
+          <option value="all">All Batches</option>
+          <option value="2020">2020</option>
+          <option value="2021">2021</option>
+          <option value="2022">2022</option>
+        </select>
+        <select id="company" class="select">
+          <option value="all">All Companies</option>
+          <option value="google">Google</option>
+          <option value="microsoft">Microsoft</option>
+          <option value="amazon">Amazon</option>
+        </select>
+        <div id="resultCount" aria-live="polite" style="align-self:center;color:#94a3b8;margin-left:8px">Showing <strong id="countNum">0</strong> profiles</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="container">
+      <div id="cards" class="grid"></div>
+    </div>
+  </section>
+
+  <section id="about" class="hero">
+    <div class="container">
+      <h2>About Alumni Network</h2>
+      <p>Our Alumni Portal helps you stay connected with classmates, discover opportunities, and give back to your community.</p>
+    </div>
+  </section>
+
+  <section id="contact" class="hero">
+    <div class="container">
+      <h2>Contact</h2>
+      <p>Email: alumni@yourcollege.edu • Phone: +91-9876543210</p>
+    </div>
+  </section>
+
+  <footer>
+    © 2025 Your College Alumni • Built with ❤️
+  </footer>
+
+  <!-- AI Chatbot -->
+  <link rel="stylesheet" href="chatbot.css">
+  <script src="chatbot.js"></script>
+  <script src="chatbot-config.js"></script>
+
+  <script>
+  // Initialize dropdown functionality FIRST
+  (function initDropdown(){
+    const headerAccountBtn = document.getElementById('headerAccountBtn');
+    const accountDropdown = document.getElementById('accountDropdown');
+    const myProfileBtn = document.getElementById('myProfileBtn');
+    const headerLogout = document.getElementById('headerLogout');
+
+    if (!headerAccountBtn || !accountDropdown) {
+      console.error('Dropdown elements not found');
+      return;
+    }
+    
+    // Check login status first
+    const checkLoginAndRedirect = (e) => {
+      e.preventDefault();
+      const storedId = localStorage.getItem('alumni_login_id');
+      if (!storedId) {
+        alert('Please login first');
+        window.location.href = 'loginfinal.html';
+        return false;
+      }
+      return storedId;
+    };
+
+    // Toggle dropdown
+    headerAccountBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      const isVisible = accountDropdown.style.display === 'block';
+      accountDropdown.style.display = isVisible ? 'none' : 'block';
+      console.log('Dropdown toggled:', !isVisible);
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+      if (!headerAccountBtn.contains(e.target) && !accountDropdown.contains(e.target)) {
+        accountDropdown.style.display = 'none';
+      }
+    });
+
+    // Prevent dropdown from closing when clicking inside it
+    accountDropdown.addEventListener('click', function(e) {
+      e.stopPropagation();
+    });
+
+    // Logout functionality
+    headerLogout.addEventListener('click', function(e) {
+      e.preventDefault();
+      try {
+        localStorage.removeItem('alumni_login_id');
+        localStorage.removeItem('alumni_user_role');
+      } catch(err) {
+        console.error('Error during logout:', err);
+      }
+      window.location.href = 'loginfinal.html';
+    });
+
+    // My Profile functionality
+    myProfileBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      const storedId = localStorage.getItem('alumni_login_id');
+      if (!storedId) {
+        alert('Please login first');
+        window.location.href = 'loginfinal.html';
+        return;
+      }
+      // If login ID is shlok or stored ID matches shlok
+      if (storedId === 'shlok') {
+        window.location.href = 'profile.html?id=shlok';
+      } else {
+        // For any other logged in user, use their stored ID
+        window.location.href = 'profile.html?id=' + encodeURIComponent(storedId);
+      }
+    });
+  })();
+
+  // Rest of the code
+  let alumniData = [];
+
+  const cardsRoot = document.getElementById('cards');
+  const searchInput = document.getElementById('search');
+  const branchSelect = document.getElementById('branch');
+  const batchSelect = document.getElementById('batch');
+  const companySelect = document.getElementById('company');
+  const countNum = document.getElementById('countNum');
+  const brandTitle = document.getElementById('brandTitle');
+
+  function createCard(alumni) {
+    const card = document.createElement('div');
+    card.className = 'card';
+    const profileUrl = 'profile.html?id=' + encodeURIComponent(alumni.id);
+    card.innerHTML = `
+      <img src="${alumni.image}" alt="${alumni.name}">
+      <div class="card-body">
+        <span class="badge">${(alumni.branch||'').toUpperCase()}</span>
+        <div class="title">${alumni.name}</div>
+        <p class="desc">${alumni.desc || ''}</p>
+        <div class="meta">
+          <span>${alumni.batch || ''} Batch</span>
+          <span>${alumni.company || ''}</span>
+        </div>
+        <a class="btn" href="${profileUrl}">View Profile</a>
+      </div>
+    `;
+    return card;
+  }
+
+  function render(list) {
+    cardsRoot.innerHTML = '';
+    list.forEach((alumni, idx) => {
+      const c = createCard(alumni);
+      c.style.setProperty('--i', idx);
+      cardsRoot.appendChild(c);
+    });
+    countNum.textContent = list.length;
+  }
+
+  function populateFilters() {
+    // Get unique values from alumni data
+    const branches = new Set();
+    const batches = new Set();
+    const companies = new Set();
+    
+    alumniData.forEach(alumni => {
+      if (alumni.branch && alumni.branch.trim()) branches.add(alumni.branch.toLowerCase());
+      if (alumni.batch && alumni.batch.trim()) batches.add(alumni.batch);
+      if (alumni.company && alumni.company.trim()) companies.add(alumni.company);
+    });
+    
+    // Sort the values
+    const sortedBranches = Array.from(branches).sort();
+    const sortedBatches = Array.from(batches).sort((a, b) => b.localeCompare(a)); // Newest first
+    const sortedCompanies = Array.from(companies).sort();
+    
+    // Store current selections
+    const currentBranch = branchSelect.value;
+    const currentBatch = batchSelect.value;
+    const currentCompany = companySelect.value;
+    
+    // Populate branch dropdown
+    branchSelect.innerHTML = '<option value="all">All Branches</option>';
+    sortedBranches.forEach(branch => {
+      const option = document.createElement('option');
+      option.value = branch;
+      option.textContent = branch.toUpperCase();
+      branchSelect.appendChild(option);
+    });
+    
+    // Populate batch dropdown
+    batchSelect.innerHTML = '<option value="all">All Batches</option>';
+    sortedBatches.forEach(batch => {
+      const option = document.createElement('option');
+      option.value = batch;
+      option.textContent = batch;
+      batchSelect.appendChild(option);
+    });
+    
+    // Populate company dropdown
+    companySelect.innerHTML = '<option value="all">All Companies</option>';
+    sortedCompanies.forEach(company => {
+      const option = document.createElement('option');
+      option.value = company;
+      option.textContent = company;
+      companySelect.appendChild(option);
+    });
+    
+    // Restore selections if they still exist
+    if (sortedBranches.includes(currentBranch)) branchSelect.value = currentBranch;
+    if (sortedBatches.includes(currentBatch)) batchSelect.value = currentBatch;
+    if (sortedCompanies.includes(currentCompany)) companySelect.value = currentCompany;
+    
+    console.log(`Filters populated: ${sortedBranches.length} branches, ${sortedBatches.length} batches, ${sortedCompanies.length} companies`);
+  }
+
+  function applyFilters() {
+    const q = (searchInput.value || '').trim().toLowerCase();
+    const br = branchSelect.value;
+    const ba = batchSelect.value;
+    const co = companySelect.value;
+    const filtered = alumniData.filter(a => {
+      const inText = `${a.name} ${a.desc || ''} ${a.company || ''}`.toLowerCase().includes(q);
+      const inBranch = br === 'all' ? true : (a.branch === br);
+      const inBatch = ba === 'all' ? true : (a.batch === ba);
+      const inCompany = co === 'all' ? true : (a.company === co);
+      return inText && inBranch && inBatch && inCompany;
+    });
+    render(filtered);
+  }
+
+  searchInput.addEventListener('input', applyFilters);
+  branchSelect.addEventListener('change', applyFilters);
+  batchSelect.addEventListener('change', applyFilters);
+  companySelect.addEventListener('change', applyFilters);
+
+  brandTitle.addEventListener('click', () => {
+    searchInput.value = '';
+    branchSelect.value = 'all';
+    batchSelect.value = 'all';
+    companySelect.value = 'all';
+    applyFilters();
+  });
+
+  // API settings
+  let API_BASE = 'http://127.0.0.1:4000';
+  const params = new URLSearchParams(window.location.search);
+  const explicitBase = params.get('apiBase');
+  if (explicitBase) {
+    API_BASE = explicitBase.replace(/\/$/, '');
+  }
+
+  const controlsContainer = document.querySelector('.controls .container');
+  const apiStatusEl = document.createElement('div');
+  apiStatusEl.style.marginTop = '8px';
+  apiStatusEl.style.color = '#9fb8cc';
+  apiStatusEl.id = 'apiStatus';
+  if (controlsContainer) controlsContainer.appendChild(apiStatusEl);
+
+  async function checkApi() {
+    try {
+      const res = await fetch(API_BASE + '/health', { signal: AbortSignal.timeout(3000) });
+      if (res.ok) {
+        apiStatusEl.textContent = `API reachable at ${API_BASE}`;
+        apiStatusEl.style.color = '#8ef';
+        return true;
+      }
+    } catch(e) {}
+    
+    try {
+      const res = await fetch(API_BASE + '/api/alumni', { signal: AbortSignal.timeout(3000) });
+      if (res.ok) {
+        apiStatusEl.textContent = `API reachable at ${API_BASE}`;
+        apiStatusEl.style.color = '#8ef';
+        return true;
+      }
+    } catch(e) {}
+
+    apiStatusEl.textContent = `Cannot reach API at ${API_BASE}`;
+    apiStatusEl.style.color = '#ff8a8a';
+    return false;
+  }
+
+  async function loadFromServer() {
+    const ok = await checkApi();
+    if (!ok) {
+      apiStatusEl.textContent = `API unreachable. Start the API server.`;
+      return;
+    }
+    try {
+      const res = await fetch(API_BASE + '/api/alumni', { cache: 'no-store' });
+      if (!res.ok) throw new Error('Server responded ' + res.status);
+      const rows = await res.json();
+      alumniData = rows.map(r => {
+        let image = r.image || 'https://picsum.photos/seed/' + encodeURIComponent(r.name || 'anon') + '/800/600';
+        if (r.image && !r.image.startsWith('http')) {
+          image = API_BASE + (r.image.startsWith('/') ? r.image : '/' + r.image);
+        }
+        return { 
+          name: r.name, 
+          branch: r.branch || '', 
+          batch: r.batch || '', 
+          company: r.company || '', 
+          desc: r.description || r.desc || '', 
+          image: image, 
+          id: r.id 
+        };
+      });
+      populateFilters();
+      applyFilters();
+      apiStatusEl.textContent = `Loaded ${alumniData.length} rows from API`;
+      apiStatusEl.style.color = '#8ef';
+    } catch (err) {
+      console.error('Failed to load alumni', err);
+      apiStatusEl.textContent = 'Failed to load alumni. Ensure API is running.';
+      apiStatusEl.style.color = '#ff8a8a';
+    }
+  }
+
+  loadFromServer();
+  </script>
+</body>
+</html>

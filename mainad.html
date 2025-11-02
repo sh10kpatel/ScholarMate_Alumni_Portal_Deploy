@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alumni Portal</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; }
+
+    /* Page base */
+    html,body { height: 100%; }
+    body { background: linear-gradient(180deg,#071129 0%, #081425 60%, #081a26 100%); color: #e6eef6; font-size: 16px; -webkit-font-smoothing:antialiased; }
+
+    /* Decorative animated blobs behind the content */
+    .bg-accent { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+    .bg-accent .blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.14; transform: translateZ(0); }
+    .bg-accent .b1 { width: 520px; height: 520px; background: radial-gradient(circle at 30% 30%, rgba(124,58,237,0.85), rgba(124,58,237,0.20) 45%, transparent 65%); left: -120px; top: -80px; animation: float1 12s ease-in-out infinite; }
+    .bg-accent .b2 { width: 460px; height: 460px; background: radial-gradient(circle at 70% 70%, rgba(6,182,212,0.80), rgba(20,184,166,0.18) 45%, transparent 65%); right: -100px; bottom: -110px; animation: float2 16s ease-in-out infinite; opacity: 0.12; }
+    .bg-accent .b3 { width: 380px; height: 380px; background: radial-gradient(circle at 50% 50%, rgba(56,189,248,0.65), rgba(56,189,248,0.16) 45%, transparent 70%); left: 40%; top: 20%; animation: float3 18s ease-in-out infinite; opacity: 0.10; }
+    @keyframes float1 { 0%{transform:translateY(0) translateX(0)}50%{transform:translateY(18px) translateX(16px)}100%{transform:translateY(0) translateX(0)} }
+    @keyframes float2 { 0%{transform:translateY(0) translateX(0)}50%{transform:translateY(-14px) translateX(-18px)}100%{transform:translateY(0) translateX(0)} }
+    @keyframes float3 { 0%{transform:translateY(0) translateX(0)}50%{transform:translateY(12px) translateX(-10px)}100%{transform:translateY(0) translateX(0)} }
+
+    header { position: sticky; top: 0; z-index: 12; background: linear-gradient(180deg, rgba(4,6,15,0.6), rgba(6,8,20,0.3)); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(148,163,184,0.06); }
+    .container { max-width: 1200px; margin: 0 auto; padding: 20px; position: relative; z-index: 1; }
+    .brand { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .brand h1 { font-size: 1.9rem; letter-spacing: 0.6px; margin-right: 18px; }
+    .nav a { color: #dbeafe; text-decoration: none; margin-left: 18px; font-weight: 700; }
+    .nav a:hover { color: #9be7ff; }
+
+    /* hamburger (left) */
+    .hamburger { background: transparent; border: none; width:48px; height:44px; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; margin-right:10px; color: #dbeafe; transition: all 0.3s ease; }
+    .hamburger:hover { color: #9be7ff; transform: scale(1.05); }
+    .hamburger svg { width: 24px; height: 18px; transition: transform 260ms ease; }
+    .hamburger.open svg { transform: rotate(90deg) scale(0.98); opacity: 0.95; }
+
+    .item-num { display:inline-block; width:24px; height:24px; line-height:24px; text-align:center; margin-right:8px; background: rgba(255,255,255,0.04); color:#9be7ff; border-radius:6px; font-weight:800; font-size: 0.85rem; }
+
+    /* side menu and overlay */
+    .side-overlay { position: fixed; inset: 0; background: rgba(2,6,23,0.6); backdrop-filter: blur(2px); z-index: 24; opacity: 0; pointer-events: none; transition: opacity 200ms ease; }
+    .side-overlay.show { opacity: 1; pointer-events: auto; }
+    .side-menu { position: fixed; left: 0; top: 0; bottom: 0; width: 320px; transform: translateX(-100%); transition: transform 320ms cubic-bezier(.2,.9,.2,1); background: linear-gradient(180deg,#0a1428 0%, #0d1a30 100%); z-index: 30; padding: 24px; box-shadow: 8px 0 40px rgba(2,6,23,0.8); color: #e6eef6; overflow-y: auto; }
+    .side-menu.open { transform: translateX(0); }
+    
+    .side-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; padding-bottom: 20px; border-bottom: 2px solid rgba(148,163,184,0.1); }
+    .side-header h2 { font-size: 1.4rem; color: #fff; font-weight: 700; }
+    .side-close { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #dbeafe; font-size: 20px; cursor: pointer; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; }
+    .side-close:hover { background: rgba(255,255,255,0.1); color: #fff; transform: rotate(90deg); }
+    
+    .side-section { margin-bottom: 24px; }
+    .side-section-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; margin-bottom: 12px; font-weight: 700; }
+    
+    .side-list { display:flex; flex-direction:column; gap: 6px; }
+    .side-item { background: transparent; border: none; text-align: left; padding: 12px 14px; color: #e6eef6; font-weight:600; border-radius:10px; cursor:pointer; transition: all 0.25s ease; display: flex; align-items: center; gap: 10px; font-size: 0.95rem; border: 1px solid transparent; }
+    .side-item:hover { background: rgba(124,58,237,0.15); border-color: rgba(124,58,237,0.3); transform: translateX(4px); }
+    .side-item:active { transform: translateX(4px) scale(0.98); }
+    
+    /* User section styling - moved to bottom */
+    .side-user-section { background: linear-gradient(135deg, rgba(124,58,237,0.15), rgba(6,182,212,0.1)); border: 1px solid rgba(124,58,237,0.2); border-radius: 12px; padding: 16px; margin-top: auto; }
+    .side-user-item { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 12px 14px; color: #dbeafe; font-weight: 600; border-radius: 10px; cursor: pointer; transition: all 0.25s ease; display: flex; align-items: center; gap: 12px; font-size: 0.95rem; margin-bottom: 8px; }
+    .side-user-item:last-child { margin-bottom: 0; }
+    .side-user-item:hover { background: rgba(255,255,255,0.12); border-color: rgba(124,58,237,0.4); transform: translateX(4px); }
+    .side-user-item.logout { color: #fca5a5; border-color: rgba(239,68,68,0.3); }
+    .side-user-item.logout:hover { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.5); }
+    
+    .side-item-icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+
+    /* Hero */
+    .hero { padding: 8px 20px 4px; text-align: center; animation: fadeIn 0.7s ease-in-out; }
+    .hero-title { font-size: 1.9rem; color: #fff; font-weight: 800; margin-bottom: 4px; }
+    .hero-sub { color: #9fb8cc; font-size: 0.98rem; margin-top: 3px; }
+
+    .controls { padding: 6px 12px 12px; animation: slideDown 0.6s ease-in-out; display: none; }
+    .controls.visible { display: block; }
+    .controls-inner { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; align-items: center; }
+    #resultCount strong { color: #e6eef6; }
+    .input, .select { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.04); color: #e6eef6; padding: 12px 14px; border-radius: 12px; min-width: 260px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.02); }
+    .input::placeholder { color: #93a6bd; }
+    option, select option, .input option, .select option { color: #000 !important; }
+
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; padding: 20px; }
+    @media (max-width: 1100px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 640px) { .grid { grid-template-columns: 1fr; } }
+
+    .card { 
+      background: #2D3748;
+      color: #FFFFFF;
+      border: none;
+      border-radius: 12px; 
+      overflow: hidden; 
+      width: 100%;
+      height: 380px;
+      transition: transform 0.32s cubic-bezier(.2,.9,.2,1), box-shadow 0.32s ease, border-color 0.32s ease, opacity 0.5s ease; 
+      opacity: 0; 
+      transform: translateY(22px) scale(0.98); 
+      cursor: pointer; 
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      position: relative;
+    }
+    .card.in-view { opacity: 1; transform: translateY(0) scale(1); }
+    .card:hover { transform: scale(1.02); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1); }
+    .card img { transition: transform 0.6s ease; display:block; width:100%; height:180px; object-fit:cover; border-radius: 12px 12px 0 0; }
+    .card:hover img { transform: scale(1.05); }
+    .card[data-index] { animation-delay: calc(var(--i) * 70ms); }
+    .card-body { padding: 12px 20px 15px 20px; }
+    .badge { 
+      position: absolute;
+      top: 152px;
+      right: 20px;
+      background: #3182CE;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      width: 60px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+    .card:hover .badge { background: #4299E1; }
+    
+    /* Delete button on card */
+    .delete-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 32px;
+      height: 32px;
+      background: rgba(239, 68, 68, 0.9);
+      border: 2px solid rgba(255, 255, 255, 0.8);
+      border-radius: 50%;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 10;
+      transition: all 0.3s ease;
+      color: white;
+      font-weight: bold;
+      font-size: 18px;
+    }
+    .delete-btn:hover {
+      background: rgba(220, 38, 38, 1);
+      transform: scale(1.1);
+    }
+    .delete-mode .delete-btn {
+      display: flex;
+    }
+    
+    .title { font-size: 22px; margin-bottom: 5px; color: #FFFFFF; font-weight: 700; }
+    .desc { font-size: 16px; color: #A0AEC0; margin-bottom: 10px; line-height: 1.5; }
+    .meta { 
+      display: flex; 
+      gap: 8px;
+      color: #A0AEC0; 
+      font-size: 14px; 
+      margin-bottom: 10px;
+    }
+    .meta span:not(:last-child)::after { content: "•"; margin: 0 8px; opacity: 0.5; }
+    .btn { 
+      display: inline-flex; 
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(to right, #667EEA, #9F7AEA); 
+      color: #fff; 
+      text-decoration: none; 
+      font-weight: 600; 
+      padding: 12px 20px; 
+      border-radius: 8px; 
+      transition: all 0.2s ease; 
+      border: none; 
+      cursor: pointer; 
+      width: 140px;
+      height: 45px;
+      font-size: 16px;
+    }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); }
+    .btn::after, .m-btn::after { content: ""; position: absolute; left: 50%; top: 50%; width: 0; height: 0; background: rgba(255,255,255,0.35); transform: translate(-50%,-50%); border-radius: 50%; pointer-events: none; }
+    .btn:active::after, .m-btn:active::after { width: 220px; height: 220px; transition: width 0.45s ease, height 0.45s ease; }
+
+    footer { border-top: 1px solid rgba(148,163,184,0.06); padding: 28px; text-align: center; color: #93a6bd; }
+
+    .input, .select { outline: none; transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease; }
+    .input:focus, .select:focus { border-color: rgba(124,58,237,0.28); box-shadow: 0 0 0 4px rgba(124,58,237,0.12), inset 0 1px 0 rgba(255,255,255,0.03); background: rgba(255,255,255,0.04); }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideDown { from { opacity: 0; transform: translateY(-18px); } to { opacity: 1; transform: translateY(0); } }
+
+    @media (prefers-reduced-motion: reduce) {
+      .bg-accent .blob { animation: none !important; }
+      .card { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-accent" aria-hidden="true">
+    <div class="blob b1"></div>
+    <div class="blob b2"></div>
+    <div class="blob b3"></div>
+  </div>
+  
+  <header>
+    <div class="container brand">
+      <div style="display:flex;align-items:center;gap:8px">
+        <button id="hamburger" class="hamburger" aria-label="Open menu" title="Menu">
+          <svg width="24" height="18" viewBox="0 0 24 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect y="1" width="24" height="2" rx="1" fill="currentColor" />
+            <rect y="8" width="24" height="2" rx="1" fill="currentColor" />
+            <rect y="15" width="24" height="2" rx="1" fill="currentColor" />
+          </svg>
+        </button>
+        <h1 id="brandTitle" style="cursor: pointer;">Alumni Portal</h1>
+      </div>
+    </div>
+  </header>
+
+  <div id="sideOverlay" class="side-overlay" aria-hidden="true"></div>
+  <aside id="sideMenu" class="side-menu" aria-hidden="true" role="dialog" aria-label="Main menu">
+    <div class="side-header">
+      <h2>Menu</h2>
+      <button id="sideClose" class="side-close" aria-label="Close menu">✕</button>
+    </div>
+    
+    <div class="side-section">
+      <div class="side-section-title">Profile Management</div>
+      <nav class="side-list" aria-label="Side navigation">
+        <button class="side-item" id="newProfileSide">
+          <span class="item-num">1</span>
+          <span class="side-item-icon">➕</span>
+          <span>New Profile</span>
+        </button>
+        <button class="side-item" id="manageProfilesSide">
+          <span class="item-num">2</span>
+          <span class="side-item-icon">🗂️</span>
+          <span>Manage Profiles</span>
+        </button>
+      </nav>
+    </div>
+
+    <div class="side-section">
+      <div class="side-section-title">Tools</div>
+      <nav class="side-list">
+        <button class="side-item" id="searchSide">
+          <span class="item-num">3</span>
+          <span class="side-item-icon">🔎</span>
+          <span>Focus Search</span>
+        </button>
+        <button class="side-item" id="toggleFiltersSide">
+          <span class="item-num">4</span>
+          <span class="side-item-icon">🎚️</span>
+          <span>Toggle Filters</span>
+        </button>
+        <button class="side-item" id="exportSide">
+          <span class="item-num">5</span>
+          <span class="side-item-icon">📤</span>
+          <span>Export Data</span>
+        </button>
+      </nav>
+    </div>
+
+    <div class="side-user-section">
+      <div class="side-section-title">User Account</div>
+      <button class="side-user-item" id="myProfileSide">
+        <span class="side-item-icon">👤</span>
+        <span>My Profile</span>
+      </button>
+      <button class="side-user-item logout" id="logoutSide">
+        <span class="side-item-icon">🚪</span>
+        <span>Logout</span>
+      </button>
+    </div>
+  </aside>
+
+  <section class="hero">
+    <div class="container">
+      <div class="hero-title">IIIT NR Alumni Portal – Connect, Discover, Grow</div>
+      <div class="hero-sub">Browse alumni, find opportunities, and keep the community alive. Use the filters to quickly narrow results.</div>
+    </div>
+  </section>
+
+  <section class="controls" id="alumni">
+    <div class="container">
+      <div class="controls-inner">
+        <input id="search" class="input" type="search" placeholder="Search alumni by name or keywords...">
+        <select id="branch" class="select">
+          <option value="all">All Branches</option>
+          <option value="cse">CSE</option>
+          <option value="ece">ECE</option>
+          <option value="dsai">DSAI</option>
+        </select>
+        <select id="batch" class="select">
+          <option value="all">All Batches</option>
+          <option value="2020">2020</option>
+          <option value="2021">2021</option>
+          <option value="2022">2022</option>
+        </select>
+        <select id="company" class="select">
+          <option value="all">All Companies</option>
+          <option value="google">Google</option>
+          <option value="microsoft">Microsoft</option>
+          <option value="amazon">Amazon</option>
+        </select>
+        <div id="resultCount" aria-live="polite" style="align-self:center;color:#94a3b8;margin-left:8px">Showing <strong id="countNum">0</strong> profiles</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="container">
+      <div id="cards" class="grid"></div>
+    </div>
+  </section>
+
+  <footer>
+    © 2025 Your College Alumni • Built with ❤️
+  </footer>
+
+  <!-- AI Chatbot -->
+  <link rel="stylesheet" href="chatbot.css">
+  <script src="chatbot.js"></script>
+  <script src="chatbot-config.js"></script>
+
+  <script>
+  let alumniData = [];
+  let deleteMode = false;
+  const cardsRoot = document.getElementById('cards');
+  const searchInput = document.getElementById('search');
+  const branchSelect = document.getElementById('branch');
+  const batchSelect = document.getElementById('batch');
+  const companySelect = document.getElementById('company');
+  const countNum = document.getElementById('countNum');
+  const brandTitle = document.getElementById('brandTitle');
+  const controlsSection = document.querySelector('.controls');
+
+  function createCard(alumni) {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.setAttribute('data-login-id', alumni.login_id || '');
+    card.innerHTML = `
+      <div class="delete-btn" title="Delete profile">−</div>
+      <img src="${alumni.image}" alt="${alumni.name}">
+      <div class="card-body">
+        <span class="badge">${alumni.branch.toUpperCase()}</span>
+        <div class="title">${alumni.name}</div>
+        <p class="desc">${alumni.desc}</p>
+        <div class="meta">
+          <span>${alumni.batch} Batch</span>
+          <span>${alumni.company}</span>
+        </div>
+        <button class="btn" aria-label="View profile of ${alumni.name}">View Profile</button>
+      </div>
+    `;
+    return card;
+  }
+
+  function render(list) {
+    cardsRoot.innerHTML = '';
+    list.forEach((alumni, idx) => {
+      const c = createCard(alumni);
+      c.style.setProperty('--i', idx);
+      c.setAttribute('data-index', idx);
+      c.classList.add('reveal-target');
+      cardsRoot.appendChild(c);
+    });
+    countNum.textContent = list.length;
+    if (deleteMode) {
+      cardsRoot.classList.add('delete-mode');
+    } else {
+      cardsRoot.classList.remove('delete-mode');
+    }
+  }
+
+  function populateFilters() {
+    // Get unique values from alumni data
+    const branches = new Set();
+    const batches = new Set();
+    const companies = new Set();
+    
+    alumniData.forEach(alumni => {
+      if (alumni.branch && alumni.branch.trim()) branches.add(alumni.branch.toLowerCase());
+      if (alumni.batch && alumni.batch.trim()) batches.add(alumni.batch);
+      if (alumni.company && alumni.company.trim()) companies.add(alumni.company);
+    });
+    
+    // Sort the values
+    const sortedBranches = Array.from(branches).sort();
+    const sortedBatches = Array.from(batches).sort((a, b) => b.localeCompare(a)); // Newest first
+    const sortedCompanies = Array.from(companies).sort();
+    
+    // Store current selections
+    const currentBranch = branchSelect.value;
+    const currentBatch = batchSelect.value;
+    const currentCompany = companySelect.value;
+    
+    // Populate branch dropdown
+    branchSelect.innerHTML = '<option value="all">All Branches</option>';
+    sortedBranches.forEach(branch => {
+      const option = document.createElement('option');
+      option.value = branch;
+      option.textContent = branch.toUpperCase();
+      branchSelect.appendChild(option);
+    });
+    
+    // Populate batch dropdown
+    batchSelect.innerHTML = '<option value="all">All Batches</option>';
+    sortedBatches.forEach(batch => {
+      const option = document.createElement('option');
+      option.value = batch;
+      option.textContent = batch;
+      batchSelect.appendChild(option);
+    });
+    
+    // Populate company dropdown
+    companySelect.innerHTML = '<option value="all">All Companies</option>';
+    sortedCompanies.forEach(company => {
+      const option = document.createElement('option');
+      option.value = company;
+      option.textContent = company;
+      companySelect.appendChild(option);
+    });
+    
+    // Restore selections if they still exist
+    if (sortedBranches.includes(currentBranch)) branchSelect.value = currentBranch;
+    if (sortedBatches.includes(currentBatch)) batchSelect.value = currentBatch;
+    if (sortedCompanies.includes(currentCompany)) companySelect.value = currentCompany;
+    
+    console.log(`Filters populated: ${sortedBranches.length} branches, ${sortedBatches.length} batches, ${sortedCompanies.length} companies`);
+  }
+
+  function applyFilters() {
+    const q = searchInput.value.trim().toLowerCase();
+    const br = branchSelect.value;
+    const ba = batchSelect.value;
+    const co = companySelect.value;
+    const filtered = alumniData.filter(a => {
+      const inText = `${a.name} ${a.desc} ${a.company}`.toLowerCase().includes(q);
+      const inBranch = br === 'all' ? true : a.branch === br;
+      const inBatch = ba === 'all' ? true : a.batch === ba;
+      const inCompany = co === 'all' ? true : a.company === co;
+      return inText && inBranch && inBatch && inCompany;
+    });
+    render(filtered);
+  }
+
+  searchInput.addEventListener('input', applyFilters);
+  branchSelect.addEventListener('change', applyFilters);
+  batchSelect.addEventListener('change', applyFilters);
+  companySelect.addEventListener('change', applyFilters);
+
+  brandTitle.addEventListener('click', () => {
+    searchInput.value = '';
+    branchSelect.value = 'all';
+    batchSelect.value = 'all';
+    companySelect.value = 'all';
+    applyFilters();
+  });
+
+  let API_BASE = 'http://localhost:4000';
+  const params = new URLSearchParams(window.location.search);
+  const explicitBase = params.get('apiBase');
+  const portParam = params.get('apiPort');
+  const hostParam = params.get('apiHost');
+  if (explicitBase) {
+    API_BASE = explicitBase.replace(/\/$/, '');
+  } else if (hostParam || portParam) {
+    const host = hostParam || 'localhost';
+    const port = portParam || '4100';
+    API_BASE = `http://${host}:${port}`;
+  }
+
+  const FORCE_API = (params.get('forceApi') === '1') || (localStorage.getItem('alumni_api_only') === '1');
+
+  const controlsContainer = document.querySelector('.controls .container');
+  const apiStatusEl = document.createElement('div');
+  apiStatusEl.style.marginTop = '8px';
+  apiStatusEl.style.color = '#9fb8cc';
+  apiStatusEl.id = 'apiStatus';
+  if (controlsContainer) controlsContainer.appendChild(apiStatusEl);
+
+  const diag = document.createElement('div');
+  diag.id = 'diagnostics';
+  diag.style.marginTop = '6px';
+  diag.style.fontSize = '0.9rem';
+  diag.style.color = '#9fb8cc';
+  diag.innerHTML = `<strong>Diagnostics:</strong> <span id="diagMsg">checking...</span> &nbsp; <label style="font-weight:600;margin-left:8px;color:#cde;"> <input type="checkbox" id="apiOnlyToggle"> API-only (no local fallback)</label>`;
+  if (controlsContainer) controlsContainer.appendChild(diag);
+  try { const t = document.getElementById('apiOnlyToggle'); t.checked = !!FORCE_API; t.addEventListener('change', (e)=>{ if (e.target.checked) localStorage.setItem('alumni_api_only','1'); else localStorage.removeItem('alumni_api_only'); apiStatusEl.textContent = e.target.checked ? 'API-only enabled. Reload to apply.' : 'API-only disabled. Reload to apply.'; }); } catch(e){}
+
+  async function checkApi() {
+    const parsed = new URL(API_BASE);
+    const port = (parsed.port || portParam || '4100');
+    const hosts = [hostParam || parsed.hostname || 'localhost', '127.0.0.1'];
+    for (const h of hosts) {
+      const url = `http://${h}:${port}/api/alumni`;
+      apiStatusEl.textContent = `Checking API at ${url} ...`;
+      try {
+        const controller = new AbortController();
+        const id = setTimeout(() => controller.abort(), 3000);
+        const res = await fetch(url, { signal: controller.signal });
+        clearTimeout(id);
+        const ct = (res.headers.get('content-type') || '').toLowerCase();
+        if (ct.includes('text/html')) {
+          apiStatusEl.textContent = `Received HTML from ${url}. It looks like a static server is running on the API port ${port}. Start the API server (see server/README.md).`;
+          apiStatusEl.style.color = '#ff8a8a';
+          continue;
+        }
+        if (res.ok) {
+          API_BASE = `http://${h}:${port}`;
+          apiStatusEl.textContent = `API reachable at ${API_BASE}`;
+          apiStatusEl.style.color = '#8ef';
+          return true;
+        } else {
+          apiStatusEl.textContent = `API reachable but returned ${res.status} at ${url}`;
+          apiStatusEl.style.color = '#ffcc66';
+        }
+      } catch (err) {
+        apiStatusEl.textContent = `Cannot reach API at ${url}: ${err.name || err.message}`;
+        apiStatusEl.style.color = '#ff8a8a';
+      }
+    }
+    return false;
+  }
+
+  async function loadLocalFallback() {
+    try {
+      apiStatusEl.textContent = 'API unreachable. Loading local alumni.json ...';
+      apiStatusEl.style.color = '#ffcc66';
+      const res = await fetch('alumni.json', { cache: 'no-store' });
+      if (!res.ok) throw new Error('Missing alumni.json (' + res.status + ')');
+      const rows = await res.json();
+      try { document.getElementById('diagMsg').textContent = `Loaded ${rows.length} rows from local fallback`; } catch(e){}
+      alumniData = rows.map(r => {
+        let image = '';
+        if (r.image) {
+          image = r.image.startsWith('http') ? r.image : r.image;
+        } else {
+          image = 'https://picsum.photos/seed/' + encodeURIComponent(r.name || 'anon') + '/800/600';
+        }
+        return { name: r.name, branch: r.branch || '', batch: r.batch || '', company: r.company || '', desc: r.description || r.desc || '', image: image, id: r.id || r.name, login_id: r.login_id };
+      });
+      populateFilters();
+      applyFilters();
+      apiStatusEl.textContent = 'Loaded local data (alumni.json).';
+      apiStatusEl.style.color = '#9fb8cc';
+    } catch (err) {
+      apiStatusEl.textContent = 'Failed to load local alumni.json: ' + (err.message || err.name);
+      apiStatusEl.style.color = '#ff8a8a';
+      console.error('Local fallback failed', err);
+    }
+  }
+
+  async function loadFromServer() {
+    const ok = await checkApi();
+    if (!ok) {
+      if (FORCE_API) { apiStatusEl.textContent = `API unreachable and API-only is enabled; not using local fallback.`; apiStatusEl.style.color = '#ff8a8a'; try { document.getElementById('diagMsg').textContent = 'API-only mode: no data loaded (API unreachable)'; } catch(e){}; return; }
+      return loadLocalFallback();
+    }
+    try {
+      const res = await fetch(API_BASE + '/api/alumni');
+      if (!res.ok) throw new Error('Server responded ' + res.status);
+      const rows = await res.json();
+      alumniData = rows.map(r => {
+        let image = '';
+        if (r.image) {
+          image = r.image.startsWith('http') ? r.image : (API_BASE.replace(/\/$/, '') + r.image);
+        } else {
+          image = 'https://picsum.photos/seed/' + encodeURIComponent(r.name || 'anon') + '/800/600';
+        }
+        return { name: r.name, branch: r.branch || '', batch: r.batch || '', company: r.company || '', desc: r.description || r.desc || '', image: image, id: r.id, login_id: r.login_id };
+      });
+      populateFilters();
+      applyFilters();
+    } catch (err) {
+      console.error('Failed to load alumni', err);
+      apiStatusEl.textContent = 'Failed to load alumni: ' + (err.message || err.name);
+      apiStatusEl.style.color = '#ff8a8a';
+      alert('Failed to load alumni. See status line on this page for details.');
+    }
+  }
+  loadFromServer();
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const el = entry.target;
+      if (entry.isIntersecting) {
+        el.classList.add('in-view');
+        observer.unobserve(el);
+      }
+    });
+  }, { root: null, rootMargin: '0px 0px -10% 0px', threshold: 0.15 });
+
+  const observeCards = () => {
+    document.querySelectorAll('.card').forEach(card => observer.observe(card));
+  };
+
+  const _origRender = render;
+  render = function(list){
+    cardsRoot.innerHTML = '';
+    list.forEach((alumni, idx) => {
+      const c = createCard(alumni);
+      c.style.setProperty('--i', idx);
+      c.setAttribute('data-index', idx);
+      cardsRoot.appendChild(c);
+    });
+    countNum.textContent = list.length;
+    if (deleteMode) {
+      cardsRoot.classList.add('delete-mode');
+    } else {
+      cardsRoot.classList.remove('delete-mode');
+    }
+    observeCards();
+  }
+
+  let lastScrollY = 0;
+  window.addEventListener('scroll', () => {
+    const y = window.scrollY || 0;
+    const dy = y - lastScrollY;
+    lastScrollY = y;
+    const b1 = document.querySelector('.bg-accent .b1');
+    const b2 = document.querySelector('.bg-accent .b2');
+    const b3 = document.querySelector('.bg-accent .b3');
+    if (b1) b1.style.transform = `translateY(${y * 0.03}px)`;
+    if (b2) b2.style.transform = `translateY(${-y * 0.02}px)`;
+    if (b3) b3.style.transform = `translateY(${y * 0.015}px)`;
+  }, { passive: true });
+
+  const hamburger = document.getElementById('hamburger');
+  const sideMenu = document.getElementById('sideMenu');
+  const sideOverlay = document.getElementById('sideOverlay');
+  const sideClose = document.getElementById('sideClose');
+  const newProfileSide = document.getElementById('newProfileSide');
+  const manageProfilesSide = document.getElementById('manageProfilesSide');
+  const searchSide = document.getElementById('searchSide');
+  const toggleFiltersSide = document.getElementById('toggleFiltersSide');
+  const exportSide = document.getElementById('exportSide');
+  const myProfileSide = document.getElementById('myProfileSide');
+  const logoutSide = document.getElementById('logoutSide');
+
+  function openSide() {
+    sideMenu.classList.add('open');
+    sideOverlay.classList.add('show');
+    hamburger.classList.add('open');
+    sideMenu.setAttribute('aria-hidden', 'false');
+    sideOverlay.setAttribute('aria-hidden', 'false');
+  }
+
+  function closeSide() {
+    sideMenu.classList.remove('open');
+    sideOverlay.classList.remove('show');
+    hamburger.classList.remove('open');
+    sideMenu.setAttribute('aria-hidden', 'true');
+    sideOverlay.setAttribute('aria-hidden', 'true');
+  }
+
+  hamburger.addEventListener('click', (e) => { e.stopPropagation(); openSide(); });
+  sideClose.addEventListener('click', closeSide);
+  sideOverlay.addEventListener('click', closeSide);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSide(); });
+
+  myProfileSide.addEventListener('click', () => {
+    closeSide();
+    const storedLoginId = sessionStorage.getItem('alumni_login_id') || localStorage.getItem('alumni_login_id');
+    
+    if (!storedLoginId) {
+      alert('Please login first');
+      window.location.href = 'loginfinal.html';
+      return;
+    }
+
+    console.log('Fetching profile for login_id:', storedLoginId);
+
+    fetch(API_BASE + '/api/alumni')
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to fetch alumni data');
+        return res.json();
+      })
+      .then(rows => {
+        console.log('Total alumni records fetched:', rows.length);
+        
+        const currentUser = rows.find(alumni => alumni.login_id === storedLoginId);
+        
+        if (currentUser && currentUser.id) {
+          console.log('Found matching user:', currentUser.name, 'with ID:', currentUser.id);
+          window.location.href = 'profile.html?id=' + encodeURIComponent(currentUser.id);
+        } else {
+          console.error('No user found with login_id:', storedLoginId);
+          alert('Profile not found. Please login again.');
+          sessionStorage.removeItem('alumni_login_id');
+          localStorage.removeItem('alumni_login_id');
+          window.location.href = 'loginfinal.html';
+        }
+      })
+      .catch(err => {
+        console.error('Error fetching profile:', err);
+        alert('Failed to load profile. Please check your connection and try again.');
+      });
+  });
+
+  logoutSide.addEventListener('click', () => {
+    closeSide();
+    if (confirm('Are you sure you want to logout?')) {
+      try {
+        const prefix = 'alumni_';
+        for (let i = localStorage.length - 1; i >= 0; i--) {
+          const k = localStorage.key(i);
+          if (k && k.indexOf(prefix) === 0) localStorage.removeItem(k);
+        }
+        for (let i = sessionStorage.length - 1; i >= 0; i--) {
+          const k = sessionStorage.key(i);
+          if (k && k.indexOf(prefix) === 0) sessionStorage.removeItem(k);
+        }
+      } catch(e) {}
+      alert('Logged out successfully');
+      window.location.href = 'loginfinal.html';
+    }
+  });
+
+  newProfileSide.addEventListener('click', () => {
+    closeSide();
+    window.location.href = 'create_profile.html';
+  });
+
+  manageProfilesSide.addEventListener('click', () => {
+    closeSide();
+    deleteMode = !deleteMode;
+    
+    if (deleteMode) {
+      cardsRoot.classList.add('delete-mode');
+      alert('Delete mode activated. Click the "−" button on any card to delete that profile. Click "Manage Profiles" again to exit delete mode.');
+    } else {
+      cardsRoot.classList.remove('delete-mode');
+      alert('Delete mode deactivated.');
+    }
+  });
+
+  searchSide.addEventListener('click', () => {
+    closeSide();
+    controlsSection.classList.add('visible');
+    const s = document.getElementById('search');
+    if (s) { 
+      s.focus(); 
+      s.scrollIntoView({behavior:'smooth', block:'center'}); 
+    }
+  });
+
+  toggleFiltersSide.addEventListener('click', () => {
+    closeSide();
+    controlsSection.classList.toggle('visible');
+  });
+
+  exportSide.addEventListener('click', () => {
+    closeSide();
+    const url = API_BASE + '/api/export';
+    const a = document.createElement('a'); 
+    a.href = url; 
+    a.download = 'alumni-export.json'; 
+    document.body.appendChild(a); 
+    a.click(); 
+    a.remove();
+  });
+
+  cardsRoot.addEventListener('click', async (e) => {
+    const deleteBtn = e.target.closest('.delete-btn');
+    if (deleteBtn && deleteMode) {
+      e.stopPropagation();
+      const card = deleteBtn.closest('.card');
+      const idx = parseInt(card.getAttribute('data-index'), 10);
+      
+      if (!Number.isFinite(idx)) return;
+      
+      const profile = alumniData[idx];
+      if (!profile) return;
+
+      // Get current user's login_id
+      const storedLoginId = sessionStorage.getItem('alumni_login_id') || localStorage.getItem('alumni_login_id');
+      
+      // Prevent admin from deleting their own profile
+      if (profile.login_id === storedLoginId) {
+        alert('You cannot delete your own profile!');
+        return;
+      }
+
+      if (!confirm(`Delete profile "${profile.name}"?`)) return;
+      
+      try {
+        const res = await fetch(API_BASE + '/api/alumni/' + encodeURIComponent(profile.id), { 
+          method: 'DELETE' 
+        });
+        
+        if (!res.ok) throw new Error('Delete failed: ' + res.status);
+        
+        alumniData.splice(idx, 1);
+        applyFilters();
+        alert('Profile deleted successfully.');
+      } catch (err) { 
+        console.error(err); 
+        alert('Failed to delete profile: ' + (err.message || err)); 
+      }
+      return;
+    }
+
+    const card = e.target.closest('.card');
+    if (!card || deleteMode) return;
+    
+    const idx = parseInt(card.getAttribute('data-index'), 10);
+    if (Number.isFinite(idx)) {
+      const profile = alumniData[idx];
+      if (profile) window.location.href = 'profile.html?id=' + encodeURIComponent(profile.id) + '&role=admin';
+    }
+  });
+  </script>
+</body>
+</html>

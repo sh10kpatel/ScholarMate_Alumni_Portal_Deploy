@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>University Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --warning-gradient: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            background: linear-gradient(180deg, #070a12 0%, #0a1020 60%, #0b1422 100%);
+            color-scheme: dark;
+            color: #e6e6f0;
+        }
+
+        .bg-strips {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: -3;
+            overflow: hidden;
+        }
+        .bg-strips .strip {
+            position: absolute;
+            top: -10%;
+            bottom: -10%;
+            transform-origin: center;
+            filter: blur(10px) contrast(108%);
+            opacity: 0.18;
+            mix-blend-mode: screen;
+        }
+        .bg-strips .s1 { left: -18%; width: 36%; background: linear-gradient(180deg, rgba(139,92,246,0.95), rgba(124,58,237,0.75)); transform: rotate(-12deg) translateY(-6%); }
+        .bg-strips .s2 { left: 10%; width: 28%; background: linear-gradient(180deg, rgba(167,139,250,0.82), rgba(124,58,237,0.55)); transform: rotate(-6deg) translateY(4%); opacity: 0.16; }
+        .bg-strips .s3 { left: 40%; width: 30%; background: linear-gradient(180deg, rgba(99,102,241,0.84), rgba(139,92,246,0.55)); transform: rotate(-20deg) translateY(-2%); opacity: 0.18; }
+        .bg-strips .s4 { left: 68%; width: 26%; background: linear-gradient(180deg, rgba(120,74,255,0.8), rgba(99,102,241,0.52)); transform: rotate(-8deg) translateY(6%); opacity: 0.14; }
+
+        @keyframes stripDrift {
+            0% { transform: translateY(0) rotate(-2deg); }
+            50% { transform: translateY(-12px) rotate(-1deg); }
+            100% { transform: translateY(0) rotate(-2deg); }
+        }
+        .bg-strips .strip { animation: stripDrift 18s ease-in-out infinite; }
+
+        .role-card { transition: transform 0.45s cubic-bezier(.2,.9,.2,1), box-shadow 0.35s ease, border-color 0.35s ease, opacity 0.5s ease; }
+        .role-card { transform: translateZ(0); }
+        .role-card.idle-float { animation: cardFloat 6s ease-in-out infinite; }
+        @keyframes cardFloat {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+            100% { transform: translateY(0); }
+        }
+        .role-card:hover { transform: translateY(-14px) scale(1.02); box-shadow: 0 20px 40px rgba(124,58,237,0.18); border-color: rgba(124,58,237,0.12); }
+        .role-card .icon-wrap { transition: transform 0.45s ease, box-shadow 0.45s ease; }
+        .role-card:hover .icon-wrap { transform: scale(1.08) translateY(-4px); box-shadow: 0 10px 30px rgba(139,92,246,0.18); }
+
+        [data-role], .role-card {
+            background: rgba(255,255,255,0.96) !important;
+            color: #06201f !important;
+            padding: 1.25rem !important;
+            border-radius: 1rem !important;
+            border: 1px solid rgba(2,6,23,0.06) !important;
+            display: block !important;
+        }
+        [data-role] h3, .role-card h3 { color: #06201f !important; }
+        [data-role] p, .role-card p { color: #334155 !important; }
+        [data-role] .flex span, .role-card .flex span { color: #0f172a !important; }
+
+        #backButton { color: #0b1220; transition: color 160ms ease; }
+        #backButton:hover { color: #7c3aed; }
+
+        .toast { color: #0b1220; background: #ffffff; }
+        .toast .flex i { opacity: 0.95; }
+
+        @media (prefers-reduced-motion: reduce) {
+            .bg-strips .strip { animation: none !important; }
+            .role-card.idle-float { animation: none !important; }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease-in-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-out-left {
+            animation: slideOutLeft 0.6s ease-in-out forwards;
+        }
+        @keyframes slideOutLeft {
+            from { opacity: 1; transform: translateX(0); }
+            to { opacity: 0; transform: translateX(-100px); }
+        }
+
+        .slide-in-right {
+            animation: slideInRight 0.6s ease-in-out forwards;
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(100px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .slide-in-left {
+            animation: slideInLeft 0.6s ease-in-out forwards;
+        }
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-100px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .slide-out-right {
+            animation: slideOutRight 0.6s ease-in-out forwards;
+        }
+        @keyframes slideOutRight {
+            from { opacity: 1; transform: translateX(0); }
+            to { opacity: 0; transform: translateX(100px); }
+        }
+
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid #fff;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .ripple {
+            position: relative;
+            overflow: hidden;
+        }
+        .ripple::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        .ripple:active::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .input-focus {
+            position: relative;
+        }
+        .input-focus::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary-gradient);
+            transition: width 0.3s ease;
+        }
+        .input-focus:focus-within::after {
+            width: 100%;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 16px 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            min-width: 300px;
+        }
+        .toast.show {
+            transform: translateX(0);
+        }
+        .toast.success {
+            border-left: 4px solid #10b981;
+        }
+        .toast.error {
+            border-left: 4px solid #ef4444;
+        }
+        .toast.warning {
+            border-left: 4px solid #f59e0b;
+        }
+
+        .password-strength {
+            margin-top: 8px;
+            height: 4px;
+            background: #e5e7eb;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .strength-bar {
+            height: 100%;
+            transition: all 0.3s ease;
+            border-radius: 2px;
+        }
+        .strength-weak { background: #ef4444; width: 25%; }
+        .strength-fair { background: #f59e0b; width: 50%; }
+        .strength-good { background: #3b82f6; width: 75%; }
+        .strength-strong { background: #10b981; width: 100%; }
+
+        .pulse-glow {
+            animation: pulseGlow 3.2s infinite;
+        }
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 4px rgba(102, 126, 234, 0.35); }
+            50% { box-shadow: 0 0 12px rgba(102, 126, 234, 0.55); }
+        }
+
+        .reveal { opacity: 0; transform: translateY(18px) scale(0.98); transition: opacity 0.6s ease, transform 0.6s ease; }
+        .reveal.in-view { opacity: 1; transform: translateY(0) scale(1); }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen overflow-hidden">
+
+    <div class="bg-strips" aria-hidden="true">
+        <div class="strip s1"></div>
+        <div class="strip s2"></div>
+        <div class="strip s3"></div>
+        <div class="strip s4"></div>
+    </div>
+
+    <div id="toastContainer"></div>
+
+    <div class="w-full max-w-4xl px-4">
+        <div id="roleSelectionContainer" class="fade-in">
+            <div class="text-center mb-8">
+                <div class="w-24 h-24 mx-auto mb-4 rounded-full overflow-hidden shadow-lg bg-white p-2">
+                    <img src="images/iiit.jpg" 
+                         alt="IIIT Naya Raipur Logo" 
+                         class="w-full h-full object-cover rounded-full">
+                </div>
+                <h2 class="text-3xl font-bold text-center text-white relative">
+                    IIIT NR Alumni Portal
+                    <div class="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-16 h-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full"></div>
+                </h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="role-card group pulse-glow idle-float" data-role="Alumni" data-color="indigo">
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                            <i class="fas fa-user-graduate text-white text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-black mb-2">Alumni</h3>
+                        <p class="text-sm text-gray-700 font-medium mb-3">Graduate Network</p>
+                        <p class="text-sm text-gray-600 leading-relaxed mb-4">Connect with the alumni network and access career services.</p>
+                        <div class="flex items-center justify-center text-indigo-600 text-sm">
+                            <i class="fas fa-arrow-right mr-2 group-hover:translate-x-1 transition-transform duration-300"></i>
+                            <span>Access Portal</span>
+                        </div>
+                    </div>
+                </div> 
+                <div class="role-card group pulse-glow idle-float" data-role="Student" data-color="sky">
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-gradient-to-br from-sky-500 to-sky-600 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                            <i class="fas fa-book-reader text-white text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-black mb-2">Student</h3>
+                        <p class="text-sm text-gray-700 font-medium mb-3">Current Student</p>
+                        <p class="text-sm text-gray-600 leading-relaxed mb-4">Explore and connect with the alumni network.</p>
+                        <div class="flex items-center justify-center text-sky-600 text-sm">
+                            <i class="fas fa-arrow-right mr-2 group-hover:translate-x-1 transition-transform duration-300"></i>
+                            <span>Access Portal</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="role-card group pulse-glow idle-float" data-role="Administrator" data-color="slate">
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-gradient-to-br from-slate-500 to-slate-600 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                            <i class="fas fa-user-shield text-white text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-black mb-2">Administrator</h3>
+                        <p class="text-sm text-gray-700 font-medium mb-3">Staff Access</p>
+                        <p class="text-sm text-gray-600 leading-relaxed mb-4">Administrative access to university management tools.</p>
+                        <div class="flex items-center justify-center text-slate-600 text-sm">
+                            <i class="fas fa-arrow-right mr-2 group-hover:translate-x-1 transition-transform duration-300"></i>
+                            <span>Access Portal</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="loginFormContainer" class="w-full max-w-md mx-auto hidden">
+             <div class="bg-white/90 backdrop-blur-md p-6 rounded-2xl shadow-2xl relative border border-white/20 text-black">
+                <button id="backButton" class="absolute top-4 left-4 transition-all duration-300 hover:scale-110">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
+                <div class="text-center mb-6">
+                    <div class="w-20 h-20 mx-auto mb-4 rounded-full overflow-hidden shadow-lg bg-white p-2">
+                        <img src="images/iiit.jpg" 
+                             alt="IIIT Naya Raipur Logo" 
+                             class="w-full h-full object-cover rounded-full">
+                    </div>
+                    <h2 id="formTitle" class="text-3xl font-bold tracking-tight">Login</h2>
+                    <p class="text-black text-sm mt-2">Welcome back! Please sign in to continue.</p>
+                </div>
+                <form id="loginForm" class="space-y-5">
+                    <div class="input-focus">
+                        <label for="userId" class="block text-black text-sm font-medium mb-2">
+                            <i class="fas fa-user mr-2 text-gray-700"></i>User ID
+                        </label>
+                        <input type="text" id="userId" name="userId" placeholder="Enter your ID" required 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200 bg-gray-50 focus:bg-white">
+                    </div>
+                    <div class="input-focus">
+                        <label for="password" class="block text-black text-sm font-medium mb-2">
+                            <i class="fas fa-key mr-2 text-gray-700"></i>Password
+                        </label>
+                        <div class="relative">
+                            <input type="password" id="password" name="password" placeholder="••••••••" required 
+                                   class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200 bg-gray-50 focus:bg-white">
+                            <button type="button" id="togglePassword" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-700 hover:text-black transition-colors">
+                                <i class="fas fa-eye" id="passwordIcon"></i>
+                            </button>
+                        </div>
+                        <div class="password-strength" id="passwordStrength">
+                            <div class="strength-bar" id="strengthBar"></div>
+                        </div>
+                        <div class="text-xs text-gray-700 mt-1" id="strengthText">Password strength</div>
+                    </div>
+                    <div class="flex items-center justify-between text-sm">
+                        <label class="flex items-center">
+                            <input type="checkbox" id="rememberMe" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                            <span class="ml-2 text-gray-700">Remember me</span>
+                        </label>
+                        <a href="#" id="forgotPasswordLink" class="text-indigo-600 hover:text-indigo-800 transition-colors duration-200">Forgot Password?</a>
+                    </div>
+                    <button type="submit" id="loginButton" class="w-full text-white py-3 rounded-lg shadow-md hover:scale-105 transform transition duration-300 ripple relative overflow-hidden">
+                        <span id="loginButtonText">Login</span>
+                        <div id="loginSpinner" class="spinner hidden ml-2"></div>
+                    </button>
+                </form>
+                <div id="signUpContainer" class="text-center text-sm text-black mt-4 hidden">
+                    <span>Don't have an account? </span>
+                    <a href="#" id="signUpLink" class="font-semibold text-indigo-600 hover:text-indigo-800 hover:underline">Sign Up</a>
+                </div>
+             </div>
+        </div>
+    </div>
+
+    <script>
+        const roleSelectionContainer = document.getElementById('roleSelectionContainer');
+        const loginFormContainer = document.getElementById('loginFormContainer');
+        const roleCards = document.querySelectorAll('.role-card');
+        const backButton = document.getElementById('backButton');
+        const formTitle = document.getElementById('formTitle');
+        const loginButton = document.getElementById('loginButton');
+        const userIdInput = document.getElementById('userId');
+        const passwordInput = document.getElementById('password');
+        const signUpContainer = document.getElementById('signUpContainer');
+        
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordIcon = document.getElementById('passwordIcon');
+        const strengthBar = document.getElementById('strengthBar');
+        const strengthText = document.getElementById('strengthText');
+        const loginButtonText = document.getElementById('loginButtonText');
+        const loginSpinner = document.getElementById('loginSpinner');
+        const toastContainer = document.getElementById('toastContainer');
+
+        let API_BASE = 'http://127.0.0.1:4000';
+        try {
+            const params = new URLSearchParams(window.location.search);
+            const explicitBase = params.get('apiBase');
+            if (explicitBase) API_BASE = explicitBase.replace(/\/$/, '');
+        } catch(e) {}
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePasswordStrength();
+            initializePasswordToggle();
+            initializeToastSystem();
+            initializeRippleEffects();
+            initializeScrollReveal();
+        });
+
+        function initializePasswordStrength() {
+            passwordInput.addEventListener('input', function() {
+                const password = this.value;
+                const strength = calculatePasswordStrength(password);
+                updatePasswordStrengthUI(strength);
+            });
+        }
+
+        function calculatePasswordStrength(password) {
+            let score = 0;
+            if (password.length >= 8) score++;
+            if (/[a-z]/.test(password)) score++;
+            if (/[A-Z]/.test(password)) score++;
+            if (/[0-9]/.test(password)) score++;
+            if (/[^A-Za-z0-9]/.test(password)) score++;
+            return score;
+        }
+
+        function updatePasswordStrengthUI(strength) {
+            const strengthClasses = ['strength-weak', 'strength-fair', 'strength-good', 'strength-strong'];
+            const strengthLabels = ['Weak', 'Fair', 'Good', 'Strong'];
+            strengthBar.className = 'strength-bar ' + (strengthClasses[strength - 1] || '');
+            strengthText.textContent = strength > 0 ? `Password strength: ${strengthLabels[strength - 1] || 'Very Weak'}` : 'Password strength';
+        }
+
+        function initializePasswordToggle() {
+            togglePassword.addEventListener('click', function() {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                passwordIcon.className = type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
+            });
+        }
+
+        function initializeToastSystem() { }
+
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            const icon = type === 'success' ? 'fas fa-check-circle' : type === 'error' ? 'fas fa-exclamation-circle' : 'fas fa-info-circle';
+            toast.innerHTML = `<div class="flex items-center"><i class="${icon} mr-3 text-${type === 'success' ? 'green' : type === 'error' ? 'red' : 'blue'}-500"></i><span>${message}</span></div>`;
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 100);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function initializeRippleEffects() {
+            document.querySelectorAll('.ripple').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    const ripple = document.createElement('span');
+                    const rect = this.getBoundingClientRect();
+                    const size = Math.max(rect.width, rect.height);
+                    const x = e.clientX - rect.left - size / 2;
+                    const y = e.clientY - rect.top - size / 2;
+                    ripple.style.width = ripple.style.height = size + 'px';
+                    ripple.style.left = x + 'px';
+                    ripple.style.top = y + 'px';
+                    ripple.classList.add('ripple-effect');
+                    this.appendChild(ripple);
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+        }
+
+        function initializeScrollReveal() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const el = entry.target;
+                        el.classList.add('in-view');
+                        observer.unobserve(el);
+                    }
+                });
+            }, { threshold: 0.15, rootMargin: '0px 0px -10% 0px' });
+
+            const cards = document.querySelectorAll('.role-card');
+            cards.forEach((card, idx) => {
+                card.classList.add('reveal');
+                card.style.transitionDelay = (idx * 80) + 'ms';
+                observer.observe(card);
+            });
+
+            const loginFormContainer = document.getElementById('loginFormContainer');
+            if (loginFormContainer) {
+                loginFormContainer.classList.add('reveal');
+                observer.observe(loginFormContainer);
+            }
+        }
+        
+        let selectedRole = '';
+
+        roleCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const role = card.dataset.role;
+                const color = card.dataset.color;
+                selectedRole = role;
+                console.log('Role card clicked:', role);
+                card.style.transform = 'scale(0.95)';
+                setTimeout(() => { card.style.transform = ''; }, 150);
+                updateLoginForm(role, color);
+                showToast(`Accessing ${role} Portal`, 'success');
+                roleSelectionContainer.classList.add('slide-out-left');
+                setTimeout(() => {
+                    roleSelectionContainer.classList.add('hidden');
+                    loginFormContainer.classList.remove('hidden');
+                    loginFormContainer.classList.remove('slide-out-right');
+                    loginFormContainer.classList.add('slide-in-right');
+                }, 500);
+            });
+        });
+
+        backButton.addEventListener('click', () => {
+            loginFormContainer.classList.remove('slide-in-right');
+            loginFormContainer.classList.add('slide-out-right');
+            setTimeout(() => {
+                loginFormContainer.classList.add('hidden');
+                roleSelectionContainer.classList.remove('hidden');
+                roleSelectionContainer.classList.remove('slide-out-left');
+                roleSelectionContainer.classList.add('slide-in-left');
+            }, 500);
+            setTimeout(() => {
+                roleSelectionContainer.classList.remove('slide-in-left');
+            }, 1100);
+        });
+
+        function updateLoginForm(role, color) {
+            selectedRole = role || '';
+            formTitle.textContent = `${role} Portal`;
+            const colorClasses = {
+                header: `text-${color}-700`,
+                button: `bg-gradient-to-r from-${color}-600 to-${color}-500`,
+                ring: `focus:ring-${color}-500`,
+                link: `text-${color}-600 hover:text-${color}-800`,
+            };
+            formTitle.className = `text-3xl font-bold tracking-tight ${colorClasses.header}`;
+            loginButton.className = `w-full text-white py-3 rounded-lg shadow-md hover:scale-105 transform transition duration-300 ripple relative overflow-hidden ${colorClasses.button}`;
+            userIdInput.className = `w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 transition duration-200 bg-gray-50 focus:bg-white ${colorClasses.ring}`;
+            passwordInput.className = `w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 transition duration-200 bg-gray-50 focus:bg-white ${colorClasses.ring}`;
+            const signUpLink = document.getElementById('signUpLink');
+            if (role === 'Administrator') {
+                signUpContainer.classList.remove('hidden');
+                signUpLink.className = `font-semibold text-indigo-600 hover:text-indigo-800 hover:underline ${colorClasses.link}`;
+            } else {
+                signUpContainer.classList.add('hidden');
+            }
+        }
+        
+        document.querySelectorAll('.role-card').forEach(card => {
+            card.className = "role-card bg-white/95 p-6 rounded-2xl shadow-lg cursor-pointer transform hover:-translate-y-2 transition-all duration-300 group idle-float border border-gray-200 text-black reveal";
+        });
+        
+        const loginForm = document.getElementById('loginForm');
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const userId = userIdInput.value.trim();
+            const password = passwordInput.value;
+            if (!userId || !password) {
+                showToast('Please fill in all fields', 'error');
+                return;
+            }
+            loginButton.disabled = true;
+            loginButtonText.textContent = 'Signing in...';
+            loginSpinner.classList.remove('hidden');
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 5000);
+                const base = (API_BASE || '').replace(/\/$/, '') || '';
+                const res = await fetch((base || '') + '/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId, password, role: (selectedRole || '').toLowerCase() }),
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+                if (!res.ok) {
+                    let msg = 'Login failed';
+                    try { const j = await res.json(); if (j && j.error) msg = j.error; } catch(_) {
+                      try { const t = await res.text(); if (t) msg = t; } catch(__) {}
+                    }
+                    showToast(msg + ` (status ${res.status})`, 'error');
+                    return;
+                }
+
+                // CRITICAL: Store login credentials in sessionStorage and localStorage
+                sessionStorage.setItem('alumni_login_id', userId);
+                localStorage.setItem('alumni_login_id', userId);
+
+                // Get and store role from server response
+                let json = {};
+                try { json = await res.json(); } catch(e) { json = {}; }
+                let srvRole = (json && json.role) ? String(json.role).toLowerCase() : '';
+                let roleStr = srvRole || (selectedRole || '').trim().toLowerCase();
+                
+                sessionStorage.setItem('alumni_user_role', roleStr);
+                localStorage.setItem('alumni_user_role', roleStr);
+
+                console.log('Login successful. Stored login_id:', userId, 'role:', roleStr);
+
+                // Remember user if checkbox is checked
+                try {
+                    const remember = document.getElementById('rememberMe');
+                    if (remember && remember.checked) {
+                        localStorage.setItem('alumni_remember', 'true');
+                    }
+                } catch(e) {}
+
+                // Determine redirect target based on role
+                const r = (roleStr || '').toLowerCase();
+                let target = 'mainad.html';
+                if (r.includes('student')) target = 'mainst.html';
+                else if (r.includes('alumni')) target = 'mainalu.html';
+                else if (r.includes('administrator') || r.includes('admin')) target = 'mainad.html';
+
+                showToast('Login successful! Redirecting...', 'success');
+                setTimeout(() => { window.location.href = target; }, 700);
+            } catch (error) {
+                console.warn('Login request failed', error && error.message ? error.message : error);
+                showToast('Cannot reach API. Please check if the server is running.', 'error');
+            } finally {
+                loginButton.disabled = false;
+                loginButtonText.textContent = 'Login';
+                loginSpinner.classList.add('hidden');
+            }
+        });
+    </script>
+
+    <!-- AI Chatbot -->
+    <link rel="stylesheet" href="chatbot.css">
+    <script src="chatbot.js"></script>
+    <script src="chatbot-config.js"></script>
+
+</body>
+</html>

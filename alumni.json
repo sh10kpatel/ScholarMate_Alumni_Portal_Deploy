@@ -1,0 +1,30 @@
+[
+  {
+    "id": 1,
+    "name": "Aarav Sharma",
+    "branch": "cse",
+    "batch": "2021",
+    "company": "Google",
+    "description": "Software Engineer focusing on distributed systems and reliability.",
+    "image": "https://images.unsplash.com/photo-1544723795-3fb6469f5b39?w=1200&q=80&auto=format&fit=crop"
+  },
+  {
+    "id": 2,
+    "name": "Ananya Gupta",
+    "branch": "ece",
+    "batch": "2020",
+    "company": "Microsoft",
+    "description": "Hardware-software co-design, building low-latency signal processing stacks.",
+    "image": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=1200&q=80&auto=format&fit=crop"
+  },
+  {
+    "id": 3,
+    "name": "Rohan Verma",
+    "branch": "dsai",
+    "batch": "2022",
+    "company": "Amazon",
+    "description": "Applied scientist working on recommendation systems and personalization.",
+    "image": "https://images.unsplash.com/photo-1547425260-76bcadfb4f2c?w=1200&q=80&auto=format&fit=crop"
+  }
+]
+

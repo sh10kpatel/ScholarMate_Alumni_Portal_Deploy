@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Announcements - Alumni Portal</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial; }
+    html, body { height: 100%; }
+    body { 
+      background: #1A202C;
+      color: #FFFFFF;
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.5;
+    }
+    .bg-accent { 
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+      opacity: 0.5;
+    }
+    .bg-accent .blob { position: absolute; border-radius:50%; filter: blur(80px); opacity:0.16; transform: translateZ(0); }
+    .bg-accent .b1{ width:520px;height:520px; background:radial-gradient(circle at 30% 30%, rgba(124,58,237,0.95), rgba(124,58,237,0.25) 40%, transparent 60%); left:-120px; top:-80px; animation:float1 12s ease-in-out infinite; }
+    .bg-accent .b2{ width:420px;height:420px; background:radial-gradient(circle at 70% 70%, rgba(6,182,212,0.92), rgba(20,184,166,0.20) 40%, transparent 60%); right:-100px; bottom:-110px; animation:float2 14s ease-in-out infinite; opacity:0.12; }
+    @keyframes float1{0%{transform:translateY(0)}50%{transform:translateY(18px) translateX(16px)}100%{transform:translateY(0)}}
+    @keyframes float2{0%{transform:translateY(0)}50%{transform:translateY(-14px) translateX(-18px)}100%{transform:translateY(0)}}
+    header { position: sticky; top:0; z-index:12; background: linear-gradient(180deg, rgba(4,6,15,0.6), rgba(6,8,20,0.3)); backdrop-filter: blur(8px); border-bottom:1px solid rgba(148,163,184,0.06); }
+    .container { max-width:1200px; margin:0 auto; padding:20px; position:relative; z-index:1; }
+    .brand { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .brand h1 { font-size:1.9rem; letter-spacing:.6px; margin-right:18px; cursor: pointer; }
+    .nav a { color:#dbeafe; text-decoration:none; margin-left:18px; font-weight:700; transition: color 0.2s; }
+    .nav a:hover { color: #93c5fd; }
+    .hero { padding:20px; text-align:center; animation:fadeIn .7s ease-in-out; }
+    .hero-title { font-size:2.2rem; color:#fff; font-weight:800; margin-bottom:8px; }
+    .hero-sub { font-size:1.1rem; color:#94a3b8; }
+    .controls { padding:12px 20px; animation:slideDown .6s ease-in-out; }
+    .controls-inner { display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
+    .btn { 
+      display:inline-flex; 
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background:linear-gradient(to right, #667EEA, #9F7AEA); 
+      color:#fff; 
+      text-decoration:none; 
+      font-weight:600; 
+      padding:12px 24px; 
+      border-radius:8px; 
+      border:none; 
+      cursor:pointer; 
+      font-size: 16px;
+      transition: all 0.2s ease;
+    }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); }
+    .btn-secondary { background: #2D3748; }
+    .btn-secondary:hover { background: #3d4758; }
+    .select { 
+      background: #2D3748;
+      border: none;
+      color: #FFFFFF;
+      padding: 0 16px;
+      border-radius: 8px;
+      min-width: 200px;
+      height: 44px;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .select:focus { outline: none; box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.5); }
+    .announcements-grid { display:grid; grid-template-columns:1fr; gap:20px; padding:20px; }
+    .announcement-card { 
+      background: #2D3748;
+      border-radius: 12px;
+      padding: 24px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeUp 0.6s forwards;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      border-left: 4px solid transparent;
+    }
+    .announcement-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px -5px rgba(0, 0, 0, 0.3);
+    }
+    .announcement-card.job { border-left-color: #10B981; }
+    .announcement-card.internship { border-left-color: #3B82F6; }
+    .announcement-card.event { border-left-color: #F59E0B; }
+    .announcement-card.general { border-left-color: #8B5CF6; }
+    .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+    .card-title { font-size: 1.5rem; font-weight: 700; color: #fff; margin-bottom: 8px; }
+    .card-meta { display: flex; gap: 16px; flex-wrap: wrap; font-size: 0.9rem; color: #94a3b8; margin-bottom: 12px; }
+    .card-meta span { display: flex; align-items: center; gap: 6px; }
+    .type-badge { 
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .type-badge.job { background: #10B98120; color: #10B981; }
+    .type-badge.internship { background: #3B82F620; color: #3B82F6; }
+    .type-badge.event { background: #F59E0B20; color: #F59E0B; }
+    .type-badge.general { background: #8B5CF620; color: #8B5CF6; }
+    .card-description { color: #cbd5e1; margin-bottom: 16px; line-height: 1.6; }
+    .card-footer { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; padding-top: 16px; border-top: 1px solid rgba(148, 163, 184, 0.1); }
+    .poster-info { display: flex; align-items: center; gap: 10px; }
+    .poster-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
+    .poster-name { font-size: 0.9rem; color: #94a3b8; }
+    .card-actions { display: flex; gap: 8px; }
+    .btn-small { padding: 8px 16px; font-size: 0.9rem; }
+    .modal { display: none; position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,0.7); align-items: center; justify-content: center; animation: fadeIn 0.3s; }
+    .modal.show { display: flex; }
+    .modal-content { background: #2D3748; border-radius: 12px; padding: 32px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; animation: slideUp 0.3s; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .modal-title { font-size: 1.8rem; font-weight: 700; }
+    .close-btn { background: none; border: none; color: #94a3b8; font-size: 1.5rem; cursor: pointer; }
+    .close-btn:hover { color: #fff; }
+    .form-group { margin-bottom: 20px; }
+    .form-label { display: block; margin-bottom: 8px; font-weight: 600; color: #cbd5e1; }
+    .form-input, .form-textarea, .form-select { 
+      width: 100%;
+      background: #1A202C;
+      border: 1px solid #4A5568;
+      color: #FFFFFF;
+      padding: 12px;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+    }
+    .form-input:focus, .form-textarea:focus, .form-select:focus {
+      outline: none;
+      border-color: #667EEA;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    .form-textarea { min-height: 100px; resize: vertical; }
+    .empty-state { text-align: center; padding: 60px 20px; color: #94a3b8; }
+    .empty-state i { font-size: 4rem; margin-bottom: 16px; opacity: 0.3; }
+    @keyframes fadeIn{ from{ opacity:0; transform:translateY(-8px);} to{ opacity:1; transform:translateY(0); } }
+    @keyframes fadeUp{ from{ opacity:0; transform:translateY(20px);} to{ opacity:1; transform:translateY(0);} }
+    @keyframes slideDown{ from{ opacity:0; transform:translateY(-18px);} to{ opacity:1; transform:translateY(0);} }
+    @keyframes slideUp{ from{ opacity:0; transform:translateY(30px);} to{ opacity:1; transform:translateY(0);} }
+  </style>
+</head>
+<body>
+  <div class="bg-accent" aria-hidden="true"><div class="blob b1"></div><div class="blob b2"></div></div>
+
+  <header>
+    <div class="container brand">
+      <div style="display:flex;align-items:center;gap:12px">
+        <h1 onclick="window.location.href='mainalu.html'">Alumni Portal</h1>
+      </div>
+      <nav class="nav">
+        <a href="mainalu.html">Alumni</a>
+        <a href="announcements.html">Announcements</a>
+        <a href="#" onclick="logout()">Logout</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="container">
+      <div class="hero-title">Job & Internship Announcements</div>
+      <div class="hero-sub">Discover opportunities shared by our alumni community</div>
+    </div>
+  </section>
+
+  <section class="controls">
+    <div class="container">
+      <div class="controls-inner">
+        <select id="typeFilter" class="select">
+          <option value="all">All Types</option>
+          <option value="job">Jobs</option>
+          <option value="internship">Internships</option>
+          <option value="event">Events</option>
+          <option value="general">General</option>
+        </select>
+        <button class="btn" onclick="openCreateModal()">
+          <i class="fas fa-plus"></i> Post Announcement
+        </button>
+        <div id="apiStatus" style="margin-left: auto; padding: 8px 16px; background: rgba(255,255,255,0.1); border-radius: 6px; font-size: 0.9rem;">
+          <span style="color: #94a3b8;">API: </span><span id="apiStatusText">Checking...</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="container">
+      <div id="announcementsGrid" class="announcements-grid"></div>
+    </div>
+  </section>
+
+  <!-- Create/Edit Modal -->
+  <div id="announcementModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modalTitle">Create Announcement</h2>
+        <button class="close-btn" onclick="closeModal()">&times;</button>
+      </div>
+      <form id="announcementForm" onsubmit="handleSubmit(event)">
+        <input type="hidden" id="announcementId">
+        
+        <div class="form-group">
+          <label class="form-label">Title *</label>
+          <input type="text" id="title" class="form-input" required placeholder="e.g., Software Engineer Opening at Google">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Type *</label>
+          <select id="type" class="form-select" required>
+            <option value="job">Job</option>
+            <option value="internship">Internship</option>
+            <option value="event">Event</option>
+            <option value="general">General</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Company/Organization</label>
+          <input type="text" id="company" class="form-input" placeholder="e.g., Google">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Location</label>
+          <input type="text" id="location" class="form-input" placeholder="e.g., Bangalore, India (Remote)">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Description *</label>
+          <textarea id="description" class="form-textarea" required placeholder="Provide details about the opportunity..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Requirements</label>
+          <textarea id="requirements" class="form-textarea" placeholder="List any requirements or qualifications..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Application Link</label>
+          <input type="url" id="applicationLink" class="form-input" placeholder="https://...">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Expires On (Optional)</label>
+          <input type="datetime-local" id="expiresAt" class="form-input">
+        </div>
+
+        <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:24px">
+          <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn">Post Announcement</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let API_BASE = 'http://127.0.0.1:4000';
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('apiBase')) {
+      API_BASE = params.get('apiBase').replace(/\/$/, '');
+    }
+
+    let announcements = [];
+    let currentUserId = null;
+    let currentUserRole = null;
+    let apiDetected = false;
+
+    // Auto-detect the correct API port
+    async function detectApiPort() {
+      if (apiDetected) return true;
+      
+      const statusEl = document.getElementById('apiStatusText');
+      if (statusEl) statusEl.textContent = 'Detecting...';
+      
+      const ports = [4000, 4001, 4002, 4003];
+      for (const port of ports) {
+        try {
+          const testUrl = `http://127.0.0.1:${port}/health`;
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 1000);
+          
+          const res = await fetch(testUrl, { signal: controller.signal });
+          clearTimeout(timeoutId);
+          
+          if (res.ok) {
+            API_BASE = `http://127.0.0.1:${port}`;
+            apiDetected = true;
+            console.log(`API detected at port ${port}`);
+            if (statusEl) {
+              statusEl.textContent = `Connected (port ${port})`;
+              statusEl.style.color = '#10B981';
+            }
+            return true;
+          }
+        } catch (err) {
+          console.log(`Port ${port} not responding:`, err.message);
+          // Try next port
+        }
+      }
+      
+      console.error('Could not detect API on any port');
+      if (statusEl) {
+        statusEl.textContent = 'Not connected ❌';
+        statusEl.style.color = '#EF4444';
+      }
+      return false;
+    }
+
+    function logout() {
+      sessionStorage.removeItem('alumni_login_id');
+      window.currentUserLoginId = null;
+      alert('Logged out successfully');
+      window.location.href = 'loginfinal.html';
+    }
+
+    function openCreateModal() {
+      document.getElementById('modalTitle').textContent = 'Create Announcement';
+      document.getElementById('announcementForm').reset();
+      document.getElementById('announcementId').value = '';
+      document.getElementById('announcementModal').classList.add('show');
+    }
+
+    function closeModal() {
+      document.getElementById('announcementModal').classList.remove('show');
+    }
+
+    async function handleSubmit(e) {
+      e.preventDefault();
+      
+      console.log('Form submitted, current API_BASE:', API_BASE);
+      
+      // Ensure API is detected before submitting
+      const apiReady = await detectApiPort();
+      console.log('API detection result:', apiReady, 'API_BASE:', API_BASE);
+      
+      if (!apiReady) {
+        alert('Cannot connect to API server. Please ensure the server is running on port 4000-4003.');
+        return;
+      }
+      
+      if (!currentUserId) {
+        alert('You must be logged in to post announcements. Please login first.');
+        console.error('No currentUserId found');
+        return;
+      }
+      
+      const id = document.getElementById('announcementId').value;
+      const data = {
+        title: document.getElementById('title').value,
+        type: document.getElementById('type').value,
+        company: document.getElementById('company').value,
+        location: document.getElementById('location').value,
+        description: document.getElementById('description').value,
+        requirements: document.getElementById('requirements').value,
+        application_link: document.getElementById('applicationLink').value,
+        expires_at: document.getElementById('expiresAt').value || null,
+        posted_by: currentUserId
+      };
+
+      console.log('Submitting announcement data:', data);
+      console.log('URL:', id ? `${API_BASE}/api/announcements/${id}` : `${API_BASE}/api/announcements`);
+
+      try {
+        const url = id ? `${API_BASE}/api/announcements/${id}` : `${API_BASE}/api/announcements`;
+        const method = id ? 'PUT' : 'POST';
+        
+        const res = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        console.log('Response status:', res.status, res.statusText);
+        
+        if (!res.ok) {
+          const errorText = await res.text();
+          console.error('Server error:', errorText);
+          throw new Error(`Failed to save announcement: ${res.status} ${res.statusText}`);
+        }
+        
+        alert(id ? 'Announcement updated!' : 'Announcement posted!');
+        closeModal();
+        loadAnnouncements();
+      } catch (err) {
+        console.error('Save error:', err);
+        alert('Failed to save announcement: ' + err.message);
+      }
+    }
+
+    async function deleteAnnouncement(id) {
+      if (!confirm('Delete this announcement?')) return;
+      
+      // Ensure API is detected before deleting
+      const apiReady = await detectApiPort();
+      if (!apiReady) {
+        alert('Cannot connect to API server. Please ensure the server is running.');
+        return;
+      }
+      
+      try {
+        const res = await fetch(`${API_BASE}/api/announcements/${id}`, { method: 'DELETE' });
+        if (!res.ok) throw new Error('Failed to delete');
+        alert('Announcement deleted!');
+        loadAnnouncements();
+      } catch (err) {
+        console.error('Delete error:', err);
+        alert('Failed to delete: ' + err.message);
+      }
+    }
+
+    function renderAnnouncements(list) {
+      const grid = document.getElementById('announcementsGrid');
+      
+      if (list.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-bullhorn"></i>
+            <h3>No announcements yet</h3>
+            <p>Be the first to post a job or internship opportunity!</p>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = list.map((ann, idx) => {
+        const canEdit = currentUserId && (currentUserId === ann.posted_by || currentUserRole === 'admin');
+        const posterImg = ann.poster_image && ann.poster_image.startsWith('http') ? ann.poster_image : 
+                          ann.poster_image ? API_BASE + ann.poster_image : 
+                          `https://ui-avatars.com/api/?name=${encodeURIComponent(ann.posted_by_name || 'Unknown')}`;
+        
+        return `
+          <div class="announcement-card ${ann.type}" style="animation-delay: ${idx * 0.1}s">
+            <div class="card-header">
+              <div>
+                <span class="type-badge ${ann.type}">${ann.type}</span>
+              </div>
+            </div>
+            <h3 class="card-title">${ann.title}</h3>
+            <div class="card-meta">
+              ${ann.company ? `<span><i class="fas fa-building"></i> ${ann.company}</span>` : ''}
+              ${ann.location ? `<span><i class="fas fa-map-marker-alt"></i> ${ann.location}</span>` : ''}
+              <span><i class="fas fa-clock"></i> ${new Date(ann.created_at).toLocaleDateString()}</span>
+            </div>
+            <p class="card-description">${ann.description}</p>
+            ${ann.requirements ? `<p class="card-description"><strong>Requirements:</strong> ${ann.requirements}</p>` : ''}
+            <div class="card-footer">
+              <div class="poster-info">
+                <img src="${posterImg}" alt="${ann.posted_by_name}" class="poster-avatar">
+                <span class="poster-name">Posted by ${ann.posted_by_name || 'Unknown'}</span>
+              </div>
+              <div class="card-actions">
+                ${ann.application_link ? `<a href="${ann.application_link}" target="_blank" class="btn btn-small"><i class="fas fa-external-link-alt"></i> Apply</a>` : ''}
+                ${canEdit ? `<button class="btn btn-secondary btn-small" onclick="deleteAnnouncement(${ann.id})"><i class="fas fa-trash"></i></button>` : ''}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function loadAnnouncements() {
+      // Ensure API is detected before loading
+      const apiReady = await detectApiPort();
+      if (!apiReady) {
+        document.getElementById('announcementsGrid').innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-exclamation-circle"></i>
+            <h3>Cannot connect to API server</h3>
+            <p>Please ensure the server is running. Check the terminal for the correct port.</p>
+            <p style="margin-top: 10px; color: #94a3b8;">Tried ports: 4000, 4001, 4002, 4003</p>
+          </div>
+        `;
+        return;
+      }
+      
+      try {
+        const res = await fetch(`${API_BASE}/api/announcements`);
+        if (!res.ok) throw new Error('Failed to load announcements');
+        announcements = await res.json();
+        applyFilters();
+      } catch (err) {
+        console.error('Load error:', err);
+        document.getElementById('announcementsGrid').innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-exclamation-circle"></i>
+            <h3>Failed to load announcements</h3>
+            <p>Please ensure the API server is running on ${API_BASE}.</p>
+            <p style="margin-top: 10px; color: #94a3b8;">Error: ${err.message}</p>
+          </div>
+        `;
+      }
+    }
+
+    function applyFilters() {
+      const typeFilter = document.getElementById('typeFilter').value;
+      let filtered = announcements;
+      
+      if (typeFilter !== 'all') {
+        filtered = announcements.filter(a => a.type === typeFilter);
+      }
+      
+      renderAnnouncements(filtered);
+    }
+
+    document.getElementById('typeFilter').addEventListener('change', applyFilters);
+
+    // Close modal on outside click
+    document.getElementById('announcementModal').addEventListener('click', (e) => {
+      if (e.target.id === 'announcementModal') closeModal();
+    });
+
+    // Get current user info
+    async function getCurrentUser() {
+      const storedLoginId = window.currentUserLoginId || sessionStorage.getItem('alumni_login_id');
+      
+      if (!storedLoginId) {
+        console.log('No logged in user found');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/api/alumni`);
+        if (!res.ok) throw new Error('Failed to fetch alumni data');
+        const rows = await res.json();
+        const currentUser = rows.find(alumni => alumni.login_id === storedLoginId);
+        
+        if (currentUser) {
+          currentUserId = currentUser.id;
+          currentUserRole = currentUser.role;
+          console.log('Current user:', currentUser.name, 'ID:', currentUserId, 'Role:', currentUserRole);
+        }
+      } catch (err) {
+        console.error('Error fetching current user:', err);
+      }
+    }
+
+    // Initialize
+    (async () => {
+      await getCurrentUser();
+      await loadAnnouncements();
+    })();
+  </script>
+
+  <!-- AI Chatbot -->
+  <link rel="stylesheet" href="chatbot.css">
+  <script src="chatbot.js"></script>
+  <script src="chatbot-config.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root { --primary: #6366f1; --primary-light: #818cf8; --primary-dark: #4f46e5; --accent: #f59e0b; --text-dark: #1e293b; --text-muted: #64748b; --bg-card: #ffffff; --shadow-sm: 0 1px 3px rgba(0,0,0,0.12); --shadow-md: 0 4px 6px rgba(0,0,0,0.1); --shadow-lg: 0 20px 40px rgba(0,0,0,0.15); }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #1a2332; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; position: relative; overflow-x: hidden; }
+    .card { width: min(1100px, 100%); background: #2c3e50; border-radius: 24px; overflow: hidden; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4); transform: translateY(30px); opacity: 0; animation: slideUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; position: relative; }
+    @keyframes slideUp { to { transform: translateY(0); opacity: 1; } }
+    .card-header { background: #34495e; padding: 40px; position: relative; overflow: hidden; }
+    .card-header::before { content: ''; position: absolute; top: -50%; right: -10%; width: 300px; height: 300px; background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%); border-radius: 50%; }
+    .hero { display: flex; gap: 32px; align-items: start; position: relative; z-index: 1; }
+    .avatar-wrapper { position: relative; flex-shrink: 0; }
+    .avatar { width: 240px; height: 240px; border-radius: 20px; overflow: hidden; border: 5px solid rgba(255, 255, 255, 0.3); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); transition: transform 0.3s ease; }
+    .avatar:hover { transform: scale(1.02); }
+    .avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .profile-info { flex: 1; color: #ecf0f1; padding-top: 8px; }
+    h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 12px; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); color: #ffffff; }
+    .meta { font-size: 1.1rem; opacity: 0.85; margin-bottom: 20px; font-weight: 500; color: #bdc3c7; }
+    .badges { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+    .badge { background: rgba(52, 152, 219, 0.3); backdrop-filter: blur(10px); padding: 10px 20px; border-radius: 30px; font-weight: 600; font-size: 0.95rem; border: 1px solid rgba(52, 152, 219, 0.5); transition: all 0.3s ease; color: #3498db; }
+    .badge:hover { background: rgba(52, 152, 219, 0.4); transform: translateY(-2px); }
+    .card-body { padding: 40px; background: #2c3e50; }
+    .section { margin-bottom: 32px; }
+    .section-title { font-size: 1.1rem; font-weight: 700; color: #ecf0f1; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .section-title::before { content: ''; width: 4px; height: 20px; background: linear-gradient(180deg, var(--primary), var(--accent)); border-radius: 2px; }
+    .description-box { background: #34495e; padding: 24px; border-radius: 16px; color: #ecf0f1; line-height: 1.7; border: 1px solid #4a5f7f; font-size: 1rem; }
+    .contact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; }
+    .contact-item { display: flex; align-items: center; gap: 12px; padding: 16px; background: #34495e; border-radius: 12px; transition: all 0.3s ease; border: 1px solid #4a5f7f; }
+    .contact-item:hover { background: #3d5266; transform: translateX(4px); box-shadow: var(--shadow-sm); }
+    .contact-icon { width: 40px; height: 40px; background: linear-gradient(135deg, #3498db, #2980b9); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; flex-shrink: 0; }
+    .contact-info { flex: 1; min-width: 0; }
+    .contact-label { font-size: 0.85rem; color: #95a5a6; margin-bottom: 2px; }
+    .contact-value { color: #ecf0f1; font-weight: 600; word-break: break-all; }
+    .contact-value a { color: #3498db; text-decoration: none; transition: color 0.3s ease; }
+    .contact-value a:hover { color: #5dade2; text-decoration: underline; }
+    .controls { display: flex; gap: 12px; flex-wrap: wrap; padding-top: 24px; border-top: 2px solid #34495e; }
+    .btn { padding: 12px 24px; border-radius: 12px; border: none; font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 8px; }
+    .btn-primary { background: linear-gradient(135deg, #3498db, #2980b9); color: white; box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3); }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(52, 152, 219, 0.4); }
+    .btn-secondary { background: #34495e; color: #3498db; border: 2px solid #3498db; }
+    .btn-secondary:hover { background: #3498db; color: white; }
+    .btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); }
+    .btn-danger:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4); }
+    #editArea { padding: 40px; background: #34495e; border-top: 2px solid #4a5f7f; display: none; }
+    .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin-bottom: 16px; }
+    .form-group { display: flex; flex-direction: column; gap: 8px; }
+    .form-label { font-weight: 600; color: #ecf0f1; font-size: 0.9rem; }
+    input[type="text"], input[type="email"], input[type="file"], textarea { width: 100%; padding: 12px 16px; border: 2px solid #4a5f7f; border-radius: 10px; font-family: inherit; font-size: 1rem; transition: all 0.3s ease; background: #2c3e50; color: #ecf0f1; }
+    input[type="file"] { padding: 10px; cursor: pointer; }
+    input:focus, textarea:focus { outline: none; border-color: #3498db; box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2); }
+    textarea { min-height: 120px; resize: vertical; }
+    .image-preview { margin-top: 12px; display: none; }
+    .image-preview img { max-width: 200px; max-height: 200px; border-radius: 12px; border: 2px solid #4a5f7f; }
+    @media (max-width: 768px) { .hero { flex-direction: column; align-items: center; text-align: center; } .avatar { width: 200px; height: 200px; } h1 { font-size: 2rem; } .card-header, .card-body { padding: 24px; } .form-row { grid-template-columns: 1fr; } }
+    .loading { text-align: center; padding: 60px 20px; color: #ecf0f1; }
+  </style>
+</head>
+<body>
+  <div class="card" id="card">
+    <div id="loadingState" class="loading">
+      <div style="font-size: 2rem; margin-bottom: 16px;">⏳</div>
+      <div>Loading profile...</div>
+    </div>
+    <div id="profileContent" style="display: none;">
+      <div class="card-header">
+        <div class="hero">
+          <div class="avatar-wrapper">
+            <div class="avatar"><img id="img" src="https://picsum.photos/seed/anon/800/800" alt="avatar"></div>
+          </div>
+          <div class="profile-info">
+            <h1 id="name">Name</h1>
+            <div class="meta" id="meta">Branch • Batch • Company</div>
+            <div class="badges">
+              <div class="badge" id="role">Role</div>
+              <div class="badge" id="loginId">login_id</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="section">
+          <div class="section-title">About</div>
+          <div class="description-box" id="desc">Description</div>
+        </div>
+        <div class="section" id="contactSection">
+          <div class="section-title">Contact Information</div>
+          <div class="contact-grid">
+            <div class="contact-item" id="emailRow">
+              <div class="contact-icon">@</div>
+              <div class="contact-info">
+                <div class="contact-label">Email</div>
+                <div class="contact-value"><a id="emailLink" href="#">n/a</a></div>
+              </div>
+            </div>
+            <div class="contact-item" id="phoneRow">
+              <div class="contact-icon">📞</div>
+              <div class="contact-info">
+                <div class="contact-label">Phone</div>
+                <div class="contact-value" id="phoneText">n/a</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="controls">
+          <div style="display:flex; gap:12px; margin-left:0;">
+            <button id="backBtn" class="btn btn-secondary">← Back</button>
+            <button id="editBtn" class="btn btn-secondary" style="display:none">✏️ Edit Profile</button>
+            <button id="deleteBtn" class="btn btn-danger" style="display:none">🗑️ Delete Profile</button>
+            <button id="saveBtn" class="btn btn-primary" style="display:none">💾 Save Changes</button>
+            <button id="cancelBtn" class="btn btn-secondary" style="display:none">✖️ Cancel</button>
+          </div>
+        </div>
+      </div>
+      <div id="editArea">
+        <div class="section-title" style="margin-bottom: 24px;">Edit Profile</div>
+        <form id="editForm">
+          <div class="form-group">
+            <label class="form-label">Profile Image</label>
+            <input type="file" name="imageFile" id="f_image" accept="image/*">
+            <div class="image-preview" id="imagePreview"><img id="previewImg" alt="Preview"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Full Name</label><input type="text" name="name" id="f_name" placeholder="Enter full name"></div>
+            <div class="form-group"><label class="form-label">Login ID</label><input type="text" name="login_id" id="f_login" placeholder="Enter login ID"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Branch</label><input type="text" name="branch" id="f_branch" placeholder="Enter branch"></div>
+            <div class="form-group"><label class="form-label">Batch</label><input type="text" name="batch" id="f_batch" placeholder="Enter batch"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Company</label><input type="text" name="company" id="f_company" placeholder="Enter company"></div>
+            <div class="form-group"><label class="form-label">Role</label><input type="text" name="role" id="f_role" placeholder="Enter role"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Email</label><input type="email" name="email" id="f_email" placeholder="Enter email"></div>
+            <div class="form-group"><label class="form-label">Phone</label><input type="text" name="phone" id="f_phone" placeholder="Enter phone"></div>
+          </div>
+          <div class="form-group"><label class="form-label">Description</label><textarea name="description" id="f_desc" placeholder="Enter description"></textarea></div>
+        </form>
+      </div>
+    </div>
+  </div>
+<script>
+const params = new URLSearchParams(window.location.search);
+const urlId = params.get('id');
+const explicit = params.get('apiBase');
+const candidates = [];
+if (explicit) candidates.push(explicit.replace(/\/$/, ''));
+candidates.push('http://127.0.0.1:4001', 'http://127.0.0.1:4000', 'http://localhost:4001', 'http://localhost:4000', window.location.origin);
+
+async function findApiBase() {
+  for (const c of candidates) {
+    try {
+      const url = (c.endsWith('/')?c.slice(0,-1):c) + '/health';
+      const controller = new AbortController();
+      const to = setTimeout(() => controller.abort(), 2000);
+      const r = await fetch(url, { signal: controller.signal });
+      clearTimeout(to);
+      if (r.ok) { console.log('API found at:', c); return c.replace(/\/$/, ''); }
+    } catch (e) { console.log('API not found at:', c); }
+  }
+  console.warn('No API found, using default:', candidates[0]);
+  return candidates[0];
+}
+
+const img = document.getElementById('img'), nameEl = document.getElementById('name'), meta = document.getElementById('meta'), roleEl = document.getElementById('role'), loginEl = document.getElementById('loginId'), desc = document.getElementById('desc'), emailLink = document.getElementById('emailLink'), phoneText = document.getElementById('phoneText'), editBtn = document.getElementById('editBtn'), saveBtn = document.getElementById('saveBtn'), cancelBtn = document.getElementById('cancelBtn'), deleteBtn = document.getElementById('deleteBtn'), backBtn = document.getElementById('backBtn'), editArea = document.getElementById('editArea'), loadingState = document.getElementById('loadingState'), profileContent = document.getElementById('profileContent'), imageInput = document.getElementById('f_image'), imagePreview = document.getElementById('imagePreview'), previewImg = document.getElementById('previewImg');
+
+let profile = null, profileDatabaseId = null;
+
+imageInput.addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (file && file.type.startsWith('image/')) {
+    const reader = new FileReader();
+    reader.onload = function(e) { previewImg.src = e.target.result; imagePreview.style.display = 'block'; };
+    reader.readAsDataURL(file);
+  } else { imagePreview.style.display = 'none'; }
+});
+
+async function load(){
+  try {
+    const base = await findApiBase();
+    window.API = base.replace(/\/$/, '');
+    console.log('URL ID parameter:', urlId, 'API Base:', window.API);
+    const res = await fetch(window.API + '/api/alumni');
+    if (!res.ok) throw new Error('Failed to fetch alumni data');
+    const rows = await res.json();
+    console.log('Total alumni fetched:', rows.length);
+    profile = rows.find(x => String(x.id) === String(urlId) || String(x.login_id || '').toLowerCase() === String(urlId || '').toLowerCase() || String(x.name || '').toLowerCase() === String(urlId || '').toLowerCase());
+    if (!profile) { loadingState.innerHTML = '<div style="font-size: 2rem; margin-bottom: 16px;">❌</div><div>Profile not found</div>'; return; }
+    console.log('Profile found:', profile);
+    profileDatabaseId = profile.id;
+    loadingState.style.display = 'none';
+    profileContent.style.display = 'block';
+    render();
+  } catch (e) { console.error('Load error:', e); loadingState.innerHTML = '<div style="font-size: 2rem; margin-bottom: 16px;">❌</div><div>Failed to load profile: ' + (e && e.message ? e.message : e) + '</div>'; }
+}
+
+function render(){
+  const apiBase = (window.API || '').replace(/\/$/, '');
+  let imageUrl = 'https://picsum.photos/seed/'+encodeURIComponent(profile.name||'anon')+'/800/800';
+  if (profile.image) {
+    if (profile.image.startsWith('http')) imageUrl = profile.image;
+    else if (profile.image.startsWith('/uploads/')) imageUrl = apiBase + profile.image;
+    else imageUrl = apiBase + '/uploads/' + profile.image;
+  }
+  console.log('Rendering image URL:', imageUrl);
+  img.src = imageUrl;
+  img.onerror = function() { console.error('Failed to load image:', imageUrl); img.src = 'https://picsum.photos/seed/'+encodeURIComponent(profile.name||'anon')+'/800/800'; };
+  nameEl.textContent = profile.name || '';
+  meta.textContent = ((profile.branch||'') + ' • ' + (profile.batch||'') + (profile.company?(' • '+profile.company):'')).replace(/^\s*•\s*/,'');
+  roleEl.textContent = (profile.role||'').toUpperCase();
+  const loginIdVal = profile.login_id || profile.userId || profile.login || profile.email || '';
+  loginEl.textContent = loginIdVal || '';
+  desc.textContent = profile.description || profile.desc || '';
+  emailLink.textContent = profile.email || 'n/a';
+  emailLink.href = profile.email ? ('mailto:'+profile.email) : '#';
+  const phoneValue = profile.phone || profile.contactno || 'n/a';
+  phoneText.textContent = phoneValue;
+  console.log('Phone value displayed:', phoneValue);
+  let storedId = '', storedRole = '';
+  try {
+    storedId = (sessionStorage.getItem('alumni_login_id')||'').trim().toLowerCase();
+    if (!storedId) storedId = (localStorage.getItem('alumni_login_id')||'').trim().toLowerCase();
+    storedRole = (sessionStorage.getItem('alumni_user_role')||'').trim().toLowerCase();
+    if (!storedRole) storedRole = (localStorage.getItem('alumni_user_role')||'').trim().toLowerCase();
+  } catch(e){}
+  console.log('Stored login_id:', storedId, 'Profile login_id:', String(profile.login_id||'').trim().toLowerCase(), 'Stored role:', storedRole);
+  const isOwner = storedId === String(profile.login_id||'').trim().toLowerCase();
+  const isAdmin = (storedRole === 'admin' || storedRole === 'administrator');
+  console.log('Is Owner:', isOwner, 'Is Admin:', isAdmin);
+  if (isOwner || isAdmin) editBtn.style.display = ''; else editBtn.style.display = 'none';
+  if (isAdmin) deleteBtn.style.display = ''; else deleteBtn.style.display = 'none';
+}
+
+editBtn.addEventListener('click', ()=>{
+  editArea.style.display = 'block';
+  document.getElementById('f_name').value = profile.name || '';
+  document.getElementById('f_login').value = profile.login_id || '';
+  document.getElementById('f_branch').value = profile.branch || '';
+  document.getElementById('f_batch').value = profile.batch || '';
+  document.getElementById('f_company').value = profile.company || '';
+  document.getElementById('f_role').value = profile.role || '';
+  document.getElementById('f_email').value = profile.email || '';
+  document.getElementById('f_phone').value = profile.phone || profile.contactno || '';
+  console.log('Edit mode - phone value:', profile.phone || profile.contactno);
+  document.getElementById('f_desc').value = profile.description || profile.desc || '';
+  document.getElementById('f_name').setAttribute('disabled', 'disabled');
+  document.getElementById('f_login').setAttribute('disabled', 'disabled');
+  document.getElementById('f_branch').setAttribute('disabled', 'disabled');
+  document.getElementById('f_batch').setAttribute('disabled', 'disabled');
+  editBtn.style.display = 'none'; saveBtn.style.display=''; cancelBtn.style.display='';
+  const apiBase = (window.API || '').replace(/\/$/, '');
+  const currentImageSrc = profile.image ? (profile.image.startsWith('http')?profile.image:(apiBase ? apiBase + profile.image : profile.image)) : '';
+  if (currentImageSrc) { previewImg.src = currentImageSrc; imagePreview.style.display = 'block'; }
+});
+
+cancelBtn.addEventListener('click', ()=>{ editArea.style.display='none'; editBtn.style.display=''; saveBtn.style.display='none'; cancelBtn.style.display='none'; imagePreview.style.display = 'none'; imageInput.value = ''; });
+
+backBtn.addEventListener('click', ()=>{
+  let storedRole = '';
+  try { storedRole = (sessionStorage.getItem('alumni_user_role')||'').trim().toLowerCase(); if (!storedRole) storedRole = (localStorage.getItem('alumni_user_role')||'').trim().toLowerCase(); } catch(e){}
+  if (storedRole.includes('student')) return window.location.href = 'mainst.html';
+  if (storedRole.includes('alumni')) return window.location.href = 'mainalu.html';
+  return window.location.href = 'mainad.html';
+});
+
+saveBtn.addEventListener('click', async ()=>{
+  let storedId = '', storedRole = '';
+  try {
+    storedId = (sessionStorage.getItem('alumni_login_id')||'').trim().toLowerCase();
+    if (!storedId) storedId = (localStorage.getItem('alumni_login_id')||'').trim().toLowerCase();
+    storedRole = (sessionStorage.getItem('alumni_user_role')||'').trim().toLowerCase();
+    if (!storedRole) storedRole = (localStorage.getItem('alumni_user_role')||'').trim().toLowerCase();
+  } catch(e){}
+  const isOwner = storedId === String(profile.login_id||'').trim().toLowerCase();
+  const isAdmin = (storedRole === 'admin' || storedRole === 'administrator');
+  if (!(isAdmin || isOwner)) { alert('You do not have permission to edit this profile.'); return; }
+  saveBtn.disabled = true; saveBtn.textContent = '💾 Saving...';
+  try {
+    const base = (window.API || '').replace(/\/$/, '') || '';
+    const imageFile = imageInput.files[0];
+    const emailValue = document.getElementById('f_email').value.trim();
+    const phoneValue = document.getElementById('f_phone').value.trim();
+    if (imageFile) {
+      const formData = new FormData();
+      formData.append('imageFile', imageFile);
+      formData.append('company', document.getElementById('f_company').value);
+      formData.append('role', document.getElementById('f_role').value);
+      formData.append('email', emailValue);
+      formData.append('phone', phoneValue);
+      formData.append('description', document.getElementById('f_desc').value);
+      console.log('Uploading with image file...', 'Email value:', emailValue, 'Phone value:', phoneValue);
+      const res = await fetch((base ? base : '') + '/api/alumni/' + encodeURIComponent(profileDatabaseId) + '/full', { method: 'PUT', headers: {'X-User-Role': isAdmin ? 'admin' : (isOwner ? 'user' : '')}, body: formData });
+      if (!res.ok) { const t = await res.text().catch(()=>''); console.error('Upload failed:', res.status, t); throw new Error('Save failed: '+res.status+' '+(t || res.statusText)); }
+      const updated = await res.json(); profile = updated; console.log('Profile updated with image:', updated);
+    } else {
+      const body = { company: document.getElementById('f_company').value, role: document.getElementById('f_role').value, email: emailValue, phone: phoneValue, description: document.getElementById('f_desc').value };
+      console.log('Saving without image, data:', body);
+      const res = await fetch((base ? base : '') + '/api/alumni/' + encodeURIComponent(profileDatabaseId), { method: 'PUT', headers: {'Content-Type':'application/json','X-User-Role': isAdmin ? 'admin' : (isOwner ? 'user' : '')}, body: JSON.stringify(body) });
+      if (!res.ok) { const t = await res.text().catch(()=>''); console.error('Update failed:', res.status, t); throw new Error('Save failed: '+res.status+' '+(t || res.statusText)); }
+      const updated = await res.json(); profile = updated; console.log('Profile updated:', updated);
+    }
+    render(); editArea.style.display='none'; saveBtn.style.display='none'; cancelBtn.style.display='none'; editBtn.style.display=''; imagePreview.style.display = 'none'; imageInput.value = ''; alert('Profile updated successfully!');
+  } catch (e) { console.error('Save error:', e); alert('Save error: '+(e&&e.message?e.message:e)); } finally { saveBtn.disabled = false; saveBtn.textContent = '💾 Save Changes'; }
+});
+
+deleteBtn.addEventListener('click', async ()=>{
+  if (!confirm('Delete this profile?')) return;
+  try {
+    const base = (window.API || '').replace(/\/$/, '') || '';
+    const res = await fetch((base ? base : '') + '/api/alumni/' + encodeURIComponent(profileDatabaseId), { method: 'DELETE' });
+    if (!res.ok) throw new Error('Delete failed: '+res.status);
+    alert('Deleted'); window.location.href='mainad.html';
+  } catch (e) { console.error(e); alert('Delete error: '+(e&&e.message?e.message:e)); }
+});
+
+load();
+</script>
+
+<!-- AI Chatbot -->
+<link rel="stylesheet" href="chatbot.css">
+<script src="chatbot.js"></script>
+<script src="chatbot-config.js"></script>
+
+</body>
+</html>

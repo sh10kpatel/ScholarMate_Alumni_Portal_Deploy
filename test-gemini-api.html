@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Gemini API</title>
+  <style>
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #1a202c;
+      color: #e2e8f0;
+    }
+    .test-box {
+      background: #2d3748;
+      padding: 20px;
+      border-radius: 12px;
+      margin: 20px 0;
+    }
+    button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      margin: 5px;
+    }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+    #result {
+      background: #1a202c;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 15px;
+      white-space: pre-wrap;
+      font-family: monospace;
+      font-size: 12px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .success { color: #48bb78; }
+    .error { color: #f56565; }
+    .info { color: #63b3ed; }
+  </style>
+</head>
+<body>
+  <h1>🧪 Gemini API Test</h1>
+  
+  <div class="test-box">
+    <h3>API Configuration</h3>
+    <p><strong>API Key:</strong> <span id="apiKeyDisplay"></span></p>
+    <p><strong>Endpoint:</strong> <span id="endpointDisplay"></span></p>
+  </div>
+
+  <div class="test-box">
+    <h3>Test API Connection</h3>
+    <button onclick="testModel('gemini-2.0-flash-exp')">Test gemini-2.0-flash-exp</button>
+    <button onclick="testModel('gemini-1.5-flash')">Test gemini-1.5-flash</button>
+    <button onclick="testModel('gemini-1.5-pro')">Test gemini-1.5-pro</button>
+    <button onclick="testModel('gemini-pro')">Test gemini-pro</button>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    const API_KEY = 'AIzaSyDc0PqBef8induTcFbamtV4ACs9znir-es';
+    
+    document.getElementById('apiKeyDisplay').textContent = 
+      API_KEY.substring(0, 10) + '...' + API_KEY.substring(API_KEY.length - 4);
+    
+    async function testModel(modelName) {
+      const resultDiv = document.getElementById('result');
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent`;
+      
+      document.getElementById('endpointDisplay').textContent = endpoint;
+      
+      resultDiv.innerHTML = `<span class="info">Testing ${modelName}...</span>\n`;
+      
+      try {
+        const requestBody = {
+          contents: [{
+            role: 'user',
+            parts: [{ text: 'Say "Hello, I am working!" in one sentence.' }]
+          }],
+          generationConfig: {
+            temperature: 0.7,
+            topK: 40,
+            topP: 0.95,
+            maxOutputTokens: 100,
+          }
+        };
+
+        console.log('Request:', requestBody);
+        
+        const response = await fetch(`${endpoint}?key=${API_KEY}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestBody)
+        });
+
+        resultDiv.innerHTML += `<span class="info">Response Status: ${response.status} ${response.statusText}</span>\n`;
+
+        const data = await response.json();
+        console.log('Response:', data);
+
+        if (!response.ok) {
+          resultDiv.innerHTML += `<span class="error">❌ Error Response:</span>\n${JSON.stringify(data, null, 2)}\n`;
+          return;
+        }
+
+        if (data.candidates && data.candidates[0]?.content?.parts[0]?.text) {
+          const text = data.candidates[0].content.parts[0].text;
+          resultDiv.innerHTML += `<span class="success">✅ Success!</span>\n`;
+          resultDiv.innerHTML += `<span class="success">AI Response: ${text}</span>\n`;
+          resultDiv.innerHTML += `\nFull Response:\n${JSON.stringify(data, null, 2)}\n`;
+        } else {
+          resultDiv.innerHTML += `<span class="error">❌ Unexpected response format:</span>\n${JSON.stringify(data, null, 2)}\n`;
+        }
+
+      } catch (error) {
+        resultDiv.innerHTML += `<span class="error">❌ Error: ${error.message}</span>\n`;
+        console.error('Test error:', error);
+      }
+    }
+
+    // Auto-test on load
+    window.addEventListener('load', () => {
+      setTimeout(() => testModel('gemini-2.0-flash-exp'), 500);
+    });
+  </script>
+</body>
+</html>

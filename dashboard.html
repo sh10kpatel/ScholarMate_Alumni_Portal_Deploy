@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .fade-in {
+            animation: fadeIn 0.8s ease-in-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-indigo-100 min-h-screen transition-all duration-500 flex items-center justify-center">
+
+    <script>
+        // SECURITY SCRIPT: If the user is not logged in, redirect them back to the login page immediately.
+        if (sessionStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.replace('login.html');
+        }
+    </script>
+
+    <div class="w-full max-w-sm">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl text-center fade-in">
+            
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">Welcome! 👋</h1>
+            
+            <p class="text-gray-600 mb-8">You have successfully logged in and this page is now secure.</p>
+            
+            <button id="logoutButton" class="w-full bg-indigo-600 text-white font-semibold py-2 rounded-lg shadow-md hover:bg-indigo-700 hover:scale-105 transform transition duration-300">
+                Logout
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- Logout Button Functionality ---
+        document.getElementById('logoutButton').addEventListener('click', () => {
+            // 1. Clear the session flag
+            sessionStorage.removeItem('isLoggedIn');
+            
+            // 2. Redirect back to the login page
+            window.location.href = 'login.html';
+        });
+    </script>
+
+    <!-- AI Chatbot -->
+    <link rel="stylesheet" href="chatbot.css">
+    <script src="chatbot.js"></script>
+    <script src="chatbot-config.js"></script>
+
+</body>
+</html>

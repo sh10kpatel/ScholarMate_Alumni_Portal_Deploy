@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chatbot Test - IIIT NR Alumni Portal</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+      background: linear-gradient(180deg, #1a202c 0%, #2d3748 100%);
+      color: #e2e8f0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      width: 100%;
+      background: #2d3748;
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      color: #a0aec0;
+      margin-bottom: 30px;
+      font-size: 1.1rem;
+    }
+
+    .info-box {
+      background: #1a202c;
+      border-left: 4px solid #667eea;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .info-box h2 {
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+      color: #fff;
+    }
+
+    .info-box p {
+      line-height: 1.6;
+      color: #cbd5e0;
+    }
+
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 15px;
+      background: #1a202c;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .status-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #48bb78;
+      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .status.error .status-dot {
+      background: #f56565;
+      animation: none;
+    }
+
+    .test-list {
+      list-style: none;
+      margin-top: 20px;
+    }
+
+    .test-list li {
+      padding: 12px;
+      margin-bottom: 8px;
+      background: #1a202c;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .test-list li::before {
+      content: '✓';
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      font-weight: bold;
+      flex-shrink: 0;
+    }
+
+    .code {
+      background: #1a202c;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9em;
+      color: #f687b3;
+    }
+
+    .button {
+      display: inline-block;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      margin-top: 20px;
+    }
+
+    .button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .warning {
+      background: rgba(251, 191, 36, 0.1);
+      border-left: 4px solid #f59e0b;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+
+    .warning strong {
+      color: #f59e0b;
+    }
+
+    .arrow {
+      position: fixed;
+      bottom: 100px;
+      right: 100px;
+      animation: bounce 2s infinite;
+      font-size: 2rem;
+      color: #667eea;
+      pointer-events: none;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    @media (max-width: 640px) {
+      .arrow { display: none; }
+      .container { padding: 20px; }
+      h1 { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🤖 Chatbot Test Page</h1>
+    <p class="subtitle">IIIT NR Alumni Portal - AI Assistant</p>
+
+    <div class="status" id="chatbotStatus">
+      <div class="status-dot"></div>
+      <span id="statusText">Checking chatbot status...</span>
+    </div>
+
+    <div class="info-box">
+      <h2>👋 Welcome to the Chatbot Test Page</h2>
+      <p>
+        This page helps you verify that the AI chatbot is properly integrated and working.
+        Look for the purple chat button in the bottom-right corner of your screen.
+      </p>
+    </div>
+
+    <div class="info-box">
+      <h2>✅ What to Check</h2>
+      <ul class="test-list">
+        <li>Purple chat button appears in bottom-right corner</li>
+        <li>Clicking button opens the chat window smoothly</li>
+        <li>Welcome message is displayed automatically</li>
+        <li>You can type and send messages</li>
+        <li>Bot responds with relevant answers</li>
+        <li>Chat window can be closed and reopened</li>
+      </ul>
+    </div>
+
+    <div class="info-box">
+      <h2>💬 Test Questions</h2>
+      <p>Try asking these questions to test the chatbot:</p>
+      <ul class="test-list">
+        <li>"What can you help me with?"</li>
+        <li>"How do I update my profile?"</li>
+        <li>"Explain the alumni portal features"</li>
+        <li>"What's the difference between user roles?"</li>
+      </ul>
+    </div>
+
+    <div class="warning">
+      <strong>⚠️ API Key Required</strong><br>
+      If you see "API Key Not Configured" in the chat, open <span class="code">chatbot-config.js</span>
+      and add your Gemini API key. Get one free at:
+      <a href="https://makersuite.google.com/app/apikey" target="_blank" style="color: #667eea;">
+        https://makersuite.google.com/app/apikey
+      </a>
+    </div>
+
+    <div style="margin-top: 30px; text-align: center;">
+      <a href="loginfinal.html" class="button">← Back to Portal</a>
+    </div>
+  </div>
+
+  <div class="arrow">👇</div>
+
+  <!-- AI Chatbot -->
+  <link rel="stylesheet" href="chatbot.css">
+  <script src="chatbot.js"></script>
+  <script src="chatbot-config.js"></script>
+
+  <script>
+    // Check if chatbot is loaded
+    setTimeout(() => {
+      const statusEl = document.getElementById('chatbotStatus');
+      const statusText = document.getElementById('statusText');
+      
+      if (window.alumniChatbot) {
+        statusText.textContent = 'Chatbot loaded successfully! Look for the chat button ➡️';
+        
+        // Check if API key is configured
+        setTimeout(() => {
+          const hasApiKey = window.alumniChatbot.apiKey && 
+                           window.alumniChatbot.apiKey !== '' && 
+                           window.alumniChatbot.apiKey !== 'YOUR_GEMINI_API_KEY_HERE';
+          
+          if (!hasApiKey) {
+            statusText.innerHTML = 'Chatbot loaded, but <strong>API key not configured</strong>. Check chatbot-config.js';
+            statusEl.classList.add('error');
+          }
+        }, 500);
+      } else {
+        statusText.textContent = 'Chatbot failed to load. Check console for errors.';
+        statusEl.classList.add('error');
+      }
+    }, 1000);
+  </script>
+</body>
+</html>

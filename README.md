@@ -21,13 +21,24 @@ alumni/
 
 ## Deployment Options
 
-### 🚂 Railway Deployment (Recommended for Production)
+### ☁️ Cloud Deployment (Production)
 
-For easy deployment to Railway with MySQL database:
+This application is designed to work with any cloud platform that supports Node.js and MySQL:
 
-**See [RAILWAY_DEPLOYMENT.md](./RAILWAY_DEPLOYMENT.md) for detailed instructions.**
+**Supported Platforms:**
+- 🚂 **Railway** - See [RAILWAY_DEPLOYMENT.md](./RAILWAY_DEPLOYMENT.md) for detailed instructions
+- 🎨 **Render** - Supports `DATABASE_URL` and `PORT` environment variables
+- ▲ **Vercel** - Can be deployed with serverless functions (requires configuration)
+- 🚀 **Heroku** - Supports `DATABASE_URL` environment variable
+- Other platforms that support Node.js and provide `DATABASE_URL` or MySQL connection
 
-Quick steps:
+**Key Features for Cloud Deployment:**
+- Automatic API URL detection (uses `window.location.origin`)
+- Supports `DATABASE_URL` environment variable (standard across platforms)
+- Supports individual environment variables (`DB_HOST`, `DB_USER`, etc.)
+- SQLite fallback for platforms without MySQL
+
+**Quick Railway Deployment:**
 1. Fork/clone this repository
 2. Create a new Railway project from your GitHub repo
 3. Add MySQL database in Railway
@@ -80,9 +91,10 @@ The login page will load automatically!
 
 ## Environment Variables
 
-### For Railway (Automatic)
-- `PORT` - Set by Railway
-- `DATABASE_URL` - Set by Railway when MySQL is added
+### For Cloud Platforms (Automatic)
+Most cloud platforms (Railway, Render, Heroku, etc.) automatically set:
+- `PORT` - The port your application should listen on
+- `DATABASE_URL` - MySQL connection string (format: `mysql://user:password@host:port/database`)
 
 ### For Local Development
 Create a `.env` file in the project root:
@@ -95,6 +107,8 @@ DB_NAME=alumni_db
 ```
 
 Or use the provided `.env.example` as a template.
+
+**Note:** The application automatically uses `DATABASE_URL` if available, otherwise falls back to individual variables.
 
 ## Default Users (from schema.sql)
 

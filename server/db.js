@@ -2,7 +2,7 @@ const mysql = require('mysql2/promise');
 const dotenv = require('dotenv');
 dotenv.config();
 
-// Railway provides DATABASE_URL, but we also support individual env vars
+// Support DATABASE_URL (used by Railway, Render, Heroku, etc.) and individual env vars
 let poolConfig;
 
 if (process.env.DATABASE_URL) {

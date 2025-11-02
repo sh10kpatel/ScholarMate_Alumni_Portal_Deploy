@@ -20,7 +20,8 @@ if (process.env.DATABASE_URL) {
       queueLimit: 0,
       connectTimeout: 10000
     };
-    console.log(`Connecting to database at ${url.hostname}:${url.port || 3306}`);
+    // Only log hostname in production to avoid leaking connection details
+    console.log(`Connecting to database at ${url.hostname} (production mode)`);
   } catch (err) {
     console.error('Failed to parse DATABASE_URL:', err.message);
     throw err;
@@ -37,6 +38,7 @@ if (process.env.DATABASE_URL) {
     queueLimit: 0,
     connectTimeout: 10000
   };
+  // Safe to log more details in development
   console.log(`Connecting to database at ${poolConfig.host} (local mode)`);
 }
 

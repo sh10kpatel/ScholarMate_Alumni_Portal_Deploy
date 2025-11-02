@@ -272,6 +272,21 @@ app.use('/uploads', (req, res, next) => {
   next();
 }, express.static(uploadsDir));
 
+// Serve static files (HTML, CSS, JS, images) from parent directory
+const publicDir = path.join(__dirname, '..');
+app.use(express.static(publicDir, {
+  setHeaders: (res, filepath) => {
+    // Set appropriate CORS headers for static files
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    // Cache static assets
+    if (filepath.endsWith('.html')) {
+      res.setHeader('Cache-Control', 'no-cache');
+    } else if (filepath.match(/\.(css|js|jpg|jpeg|png|gif|svg|ico)$/)) {
+      res.setHeader('Cache-Control', 'public, max-age=86400');
+    }
+  }
+}));
+
 // Health endpoint for quick checks from clients or load balancers
 app.get('/health', (req, res) => res.json({ ok: true, ts: Date.now() }));
 
@@ -877,6 +892,11 @@ app.get('/api/export', async (req, res) => {
     console.error('GET /api/export error:', err);
     res.status(500).json({ error: 'DB error' });
   }
+});
+
+// Serve login page as default root
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'loginfinal.html'));
 });
 
 (async () => {

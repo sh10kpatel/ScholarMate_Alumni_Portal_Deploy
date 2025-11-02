@@ -233,12 +233,17 @@
   <script src="chatbot-config.js"></script>
 
   <script>
-  // API settings
-  let API_BASE = 'http://127.0.0.1:4000';
+  // Auto-detect API URL: use same origin in production, localhost in development
+  let API_BASE = window.location.origin;
+  
   const params = new URLSearchParams(window.location.search);
   const explicitBase = params.get('apiBase');
+  
   if (explicitBase) {
     API_BASE = explicitBase.replace(/\/$/, '');
+  } else if (window.location.protocol === 'file:') {
+    // Local file - default to localhost
+    API_BASE = 'http://127.0.0.1:4000';
   }
 
   // Initialize dropdown functionality

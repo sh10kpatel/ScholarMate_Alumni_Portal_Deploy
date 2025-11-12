@@ -70,13 +70,20 @@
   </div>
 
 <script>
-// Point API_BASE at the running server. Default to port 4100 (server started there).
-// You can override by adding ?apiPort=4000 to the page URL.
-let API_BASE = 'http://localhost:4000';
+// Auto-detect API URL: use same origin in production, localhost in development
+let API_BASE = window.location.origin;
+
 const params = new URLSearchParams(window.location.search);
 const portParam = params.get('apiPort');
-if (portParam) {
+const explicitBase = params.get('apiBase');
+
+if (explicitBase) {
+  API_BASE = explicitBase.replace(/\/$/, '');
+} else if (portParam) {
   API_BASE = `http://localhost:${portParam}`;
+} else if (window.location.protocol === 'file:') {
+  // Local file - default to localhost
+  API_BASE = 'http://localhost:4000';
 }
 
 // UI element for showing API connectivity status (populated on load)

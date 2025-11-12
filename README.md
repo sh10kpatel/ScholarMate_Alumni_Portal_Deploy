@@ -5,7 +5,7 @@ A modern alumni portal with role-based authentication and MySQL database integra
 ## Project Structure
 
 ```
-alumini/
+alumni/
 ├── images/              # Static images (logos, backgrounds)
 ├── loginfinal.html      # Login page with role selection
 ├── mainad.html          # Administrator dashboard
@@ -19,28 +19,64 @@ alumini/
     └── uploads/         # File uploads
 ```
 
-## Quick Start
+## Deployment Options
 
-### 1. Database Setup
+### ☁️ Cloud Deployment (Production)
+
+This application is designed to work with any cloud platform that supports Node.js and MySQL:
+
+**Supported Platforms:**
+- 🚂 **Railway** - See [RAILWAY_DEPLOYMENT.md](./RAILWAY_DEPLOYMENT.md) for detailed instructions
+- 🎨 **Render** - Supports `DATABASE_URL` and `PORT` environment variables
+- ▲ **Vercel** - Can be deployed with serverless functions (requires configuration)
+- 🚀 **Heroku** - Supports `DATABASE_URL` environment variable
+- Other platforms that support Node.js and provide `DATABASE_URL` or MySQL connection
+
+**Key Features for Cloud Deployment:**
+- Automatic API URL detection (uses `window.location.origin`)
+- Supports `DATABASE_URL` environment variable (standard across platforms)
+- Supports individual environment variables (`DB_HOST`, `DB_USER`, etc.)
+- SQLite fallback for platforms without MySQL
+
+**Quick Railway Deployment:**
+1. Fork/clone this repository
+2. Create a new Railway project from your GitHub repo
+3. Add MySQL database in Railway
+4. Deploy automatically!
+
+Railway handles environment variables, PORT, and DATABASE_URL automatically.
+
+### 💻 Local Development
+
+#### 1. Database Setup
 First, create and seed the MySQL database:
 ```sql
 SOURCE server/schema.sql;
 ```
 
-### 2. Start Server
-```powershell
-cd server
-npm install
-$env:PORT=4100
-$env:DB_HOST="127.0.0.1"
-$env:DB_USER="root"
-$env:DB_PASSWORD="your_password"
-$env:DB_NAME="alumni_db"
+Or use the SQLite fallback (no database setup required):
+```bash
 npm start
 ```
 
-### 3. Open Portal
-Open `loginfinal.html?apiBase=http://127.0.0.1:4100` in your browser.
+#### 2. Start Server
+```bash
+# Install dependencies (only needed once)
+npm install
+
+# Start the server
+npm start
+```
+
+The server will:
+- Listen on port 4000 (or PORT environment variable)
+- Try to connect to MySQL (or fallback to SQLite)
+- Serve all HTML files and API endpoints
+
+#### 3. Open Portal
+Open your browser to: `http://localhost:4000`
+
+The login page will load automatically!
 
 ## Features
 
@@ -48,7 +84,31 @@ Open `loginfinal.html?apiBase=http://127.0.0.1:4100` in your browser.
 - **MySQL Integration**: Persistent data storage with bcrypt password hashing
 - **Responsive Design**: Modern UI with animations and smooth interactions
 - **Profile Management**: View, create, and manage alumni profiles
-- **Offline Fallback**: Works even when API is unreachable
+- **Smart API Detection**: Automatically detects API URL (same origin in production, localhost in dev)
+- **Offline Fallback**: Works with SQLite when MySQL is unavailable
+- **Announcements System**: Post jobs, internships, events, and general announcements
+- **AI Chatbot**: Integrated Gemini AI chatbot (requires API key)
+
+## Environment Variables
+
+### For Cloud Platforms (Automatic)
+Most cloud platforms (Railway, Render, Heroku, etc.) automatically set:
+- `PORT` - The port your application should listen on
+- `DATABASE_URL` - MySQL connection string (format: `mysql://user:password@host:port/database`)
+
+### For Local Development
+Create a `.env` file in the project root:
+```env
+PORT=4000
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=your_password
+DB_NAME=alumni_db
+```
+
+Or use the provided `.env.example` as a template.
+
+**Note:** The application automatically uses `DATABASE_URL` if available, otherwise falls back to individual variables.
 
 ## Default Users (from schema.sql)
 
@@ -58,11 +118,38 @@ Open `loginfinal.html?apiBase=http://127.0.0.1:4100` in your browser.
 
 ## API Endpoints
 
-- `GET /api/alumni` - List all alumni
-- `POST /api/login` - Authenticate user with role
-- `DELETE /api/alumni/:id` - Remove alumni profile
+- `GET /` - Serve login page
 - `GET /api/health` - Health check
+- `GET /api/alumni` - List all alumni
+- `GET /api/alumni/:id` - Get specific alumni
+- `POST /api/alumni` - Create alumni profile
+- `PUT /api/alumni/:id` - Update alumni profile
+- `DELETE /api/alumni/:id` - Delete alumni profile
+- `POST /api/login` - Authenticate user with role
+- `GET /api/announcements` - List announcements
+- `POST /api/announcements` - Create announcement
+- `GET /api/export` - Export alumni data
+
+## Chatbot Setup
+
+1. Copy `chatbot-config.example.js` to `chatbot-config.js`
+2. Get a free Gemini API key from https://makersuite.google.com/app/apikey
+3. Add your API key to `chatbot-config.js`
+
+**Note**: The chatbot-config.js file is gitignored for security.
 
 ## Browser Support
 
 Works in all modern browsers. Requires JavaScript enabled.
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test locally
+5. Submit a pull request
+
+## License
+
+This project is private and proprietary.

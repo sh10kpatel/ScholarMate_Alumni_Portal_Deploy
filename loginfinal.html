@@ -385,12 +385,25 @@
         const loginSpinner = document.getElementById('loginSpinner');
         const toastContainer = document.getElementById('toastContainer');
 
-        let API_BASE = 'http://127.0.0.1:4000';
+        // Auto-detect API URL: use same origin in production, localhost in development
+        let API_BASE = window.location.origin;
+        
+        // If running from file:// protocol or need custom API, check URL params
         try {
             const params = new URLSearchParams(window.location.search);
             const explicitBase = params.get('apiBase');
-            if (explicitBase) API_BASE = explicitBase.replace(/\/$/, '');
-        } catch(e) {}
+            if (explicitBase) {
+                API_BASE = explicitBase.replace(/\/$/, '');
+            } else if (window.location.protocol === 'file:') {
+                // Local file - default to localhost
+                API_BASE = 'http://127.0.0.1:4000';
+            }
+        } catch(e) {
+            // Fallback for local development
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                API_BASE = `http://${window.location.hostname}:4000`;
+            }
+        }
 
         document.addEventListener('DOMContentLoaded', function() {
             initializePasswordStrength();

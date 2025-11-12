@@ -7,6 +7,9 @@ server/node_modules/
 .env.local
 server/.env
 
+# Chatbot configuration (contains API keys)
+chatbot-config.js
+
 # Database files
 *.db
 *.sqlite
